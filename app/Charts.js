@@ -34,38 +34,50 @@ export default function Charts({ activeTab, stats }) {
   ];
 
   // ==================== KALKULASI EKONOMI & APBN REALISTIS ====================
-  // PDB Indonesia di kisaran Rp 21.000+ Triliun
+  // PDB Indonesia ~ Rp 21.000 Triliun
   const totalGDP = Math.round(21000 * (stats.economy / 50)); 
+
+  // Total APBN ~ 16-18% dari PDB (Sekitar Rp 3.300 - 3.800 Triliun)
+  const totalExpenditureTrillion = Math.round(totalGDP * 0.165);
+  const apbnPctOfGdp = Math.round((totalExpenditureTrillion / totalGDP) * 100);
 
   // Standar Pendapatan Bulanan Riil Indonesia (Rupiah)
   const avgIncomeMonthly = Math.round(5200000 * (stats.economy / 50));
   const poorest10Monthly = Math.round(1800000 * (stats.civilLiberties / 50));
   const richest10Monthly = Math.round(28000000 * (stats.economy / 50));
 
+  // Alokasi APBN Proorsional Riil (Total 100%)
+  const eduBudget = Math.max(15, Math.round(20 * (stats.education / 50)));
+  const milBudget = Math.max(5, Math.round(10 * (stats.military / 50)));
+  const healthBudget = Math.max(5, Math.round(10 * (stats.education / 50)));
+  const infraBudget = Math.max(10, Math.round(15 * (stats.economy / 50)));
+  const envBudget = Math.max(3, Math.round(6 * (stats.environment / 50)));
+  const socialBudget = Math.max(8, Math.round(14 * (stats.civilLiberties / 50)));
+  const govBudget = 15; // Birokrasi & Pelayanan Publik
+  const otherBudget = Math.max(2, 100 - (eduBudget + milBudget + healthBudget + infraBudget + envBudget + socialBudget + govBudget));
+
   const expenditureData = [
-    { name: 'Pemerintahan & Birokrasi', value: Math.max(5, Math.round(stats.civilLiberties * 0.4)) },
-    { name: 'Pertahanan & Militer', value: stats.military },
-    { name: 'Pendidikan', value: stats.education },
-    { name: 'Lingkungan Hidup', value: stats.environment },
-    { name: 'Layanan Kesehatan', value: Math.max(8, Math.round(stats.education * 0.7)) },
-    { name: 'Industri & Manufaktur', value: Math.max(10, Math.round(stats.economy * 0.8)) },
-    { name: 'Bantuan Luar Negeri', value: 3 },
-    { name: 'Hukum & Keamanan', value: Math.max(10, Math.round(stats.military * 0.6)) },
-    { name: 'Transportasi Publik', value: Math.max(8, Math.round(stats.civilLiberties * 0.6)) },
-    { name: 'Kebijakan Sosial', value: Math.max(7, Math.round(stats.civilLiberties * 0.5)) },
-    { name: 'Keagamaan', value: 5 },
-    { name: 'Kesejahteraan Rakyat', value: Math.max(8, Math.round(stats.civilLiberties * 0.7)) },
+    { name: 'Pendidikan & Kebudayaan', value: eduBudget },
+    { name: 'Infrastruktur & Transportasi', value: infraBudget },
+    { name: 'Pemerintahan & Birokrasi', value: govBudget },
+    { name: 'Perlindungan Sosial & Bantuan', value: socialBudget },
+    { name: 'Pertahanan & Keamanan', value: milBudget },
+    { name: 'Layanan Kesehatan', value: healthBudget },
+    { name: 'Lingkungan Hidup & Energi', value: envBudget },
+    { name: 'Sektor Lainnya', value: otherBudget },
   ];
 
-  // Hitungan APBN dalam Triliun Rupiah (Serasi dengan PDB 21.000 Triliun)
-  const totalExpenditureTrillion = Math.round((totalGDP * 0.18) * (stats.economy / 50));
-  const apbnPctOfGdp = Math.round((totalExpenditureTrillion / totalGDP) * 100);
+  // Struktur Sektor Pembentuk PDB (Total 100%)
+  const privateSector = Math.max(30, Math.round(45 * (stats.economy / 50)));
+  const umkmSector = Math.max(20, Math.round(30 * (stats.civilLiberties / 50)));
+  const bumnSector = Math.max(10, Math.round(15 * (stats.military / 50)));
+  const informalSector = Math.max(5, 100 - (privateSector + umkmSector + bumnSector));
 
   const economyBreakdownData = [
-    { name: 'Sektor Pemerintah', value: Math.max(15, Math.round(100 - stats.economy + 15)) },
-    { name: 'BUMN / Industri Negara', value: Math.max(12, Math.round(stats.military * 0.35)) },
-    { name: 'Industri Swasta & UMKM', value: Math.max(35, Math.round(stats.economy * 0.9)) },
-    { name: 'Sektor Informal & Lainnya', value: Math.max(5, Math.round((100 - stats.civilLiberties) * 0.15)) },
+    { name: 'Industri Swasta & Korporasi', value: privateSector },
+    { name: 'UMKM & Perdagangan Rakyat', value: umkmSector },
+    { name: 'BUMN & Perusahaan Negara', value: bumnSector },
+    { name: 'Sektor Informal & Swadaya', value: informalSector },
   ];
 
   return (
@@ -171,11 +183,11 @@ export default function Charts({ activeTab, stats }) {
             </div>
 
             <div className="border border-slate-700 rounded-lg p-3 bg-slate-950/60 text-[11px] text-slate-300">
-              <div className="grid grid-cols-3 gap-y-2 gap-x-1 text-left">
+              <div className="grid grid-cols-2 gap-y-2 gap-x-1 text-left">
                 {expenditureData.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-1.5">
                     <span className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
-                    <span className="truncate">{item.name}</span>
+                    <span className="truncate">{item.name}: {item.value}%</span>
                   </div>
                 ))}
               </div>
@@ -221,7 +233,7 @@ export default function Charts({ activeTab, stats }) {
                 {economyBreakdownData.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-1.5">
                     <span className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
-                    <span className="truncate">{item.name}</span>
+                    <span className="truncate">{item.name}: {item.value}%</span>
                   </div>
                 ))}
               </div>
