@@ -34,74 +34,65 @@ export default function Charts({ activeTab, stats }) {
   ];
 
   // ==================== KALKULASI EKONOMI & APBN REALISTIS ====================
-  // PDB Indonesia ~ Rp 21.000 Triliun
   const totalGDP = Math.round(21000 * (stats.economy / 50)); 
-
-  // Total APBN ~ 16-18% dari PDB (Sekitar Rp 3.300 - 3.800 Triliun)
   const totalExpenditureTrillion = Math.round(totalGDP * 0.165);
   const apbnPctOfGdp = Math.round((totalExpenditureTrillion / totalGDP) * 100);
 
-  // Standar Pendapatan Bulanan Riil Indonesia (Rupiah)
   const avgIncomeMonthly = Math.round(5200000 * (stats.economy / 50));
   const poorest10Monthly = Math.round(1800000 * (stats.civilLiberties / 50));
   const richest10Monthly = Math.round(28000000 * (stats.economy / 50));
 
-  // Alokasi APBN Proorsional Riil (Total 100%)
   const eduBudget = Math.max(15, Math.round(20 * (stats.education / 50)));
   const milBudget = Math.max(5, Math.round(10 * (stats.military / 50)));
   const healthBudget = Math.max(5, Math.round(10 * (stats.education / 50)));
   const infraBudget = Math.max(10, Math.round(15 * (stats.economy / 50)));
   const envBudget = Math.max(3, Math.round(6 * (stats.environment / 50)));
   const socialBudget = Math.max(8, Math.round(14 * (stats.civilLiberties / 50)));
-  const govBudget = 15; // Birokrasi & Pelayanan Publik
+  const govBudget = 15;
   const otherBudget = Math.max(2, 100 - (eduBudget + milBudget + healthBudget + infraBudget + envBudget + socialBudget + govBudget));
 
   const expenditureData = [
     { name: 'Pendidikan & Kebudayaan', value: eduBudget },
     { name: 'Infrastruktur & Transportasi', value: infraBudget },
     { name: 'Pemerintahan & Birokrasi', value: govBudget },
-    { name: 'Perlindungan Sosial & Bantuan', value: socialBudget },
+    { name: 'Perlindungan Sosial', value: socialBudget },
     { name: 'Pertahanan & Keamanan', value: milBudget },
     { name: 'Layanan Kesehatan', value: healthBudget },
-    { name: 'Lingkungan Hidup & Energi', value: envBudget },
+    { name: 'Lingkungan Hidup', value: envBudget },
     { name: 'Sektor Lainnya', value: otherBudget },
   ];
 
-  // Struktur Sektor Pembentuk PDB (Total 100%)
   const privateSector = Math.max(30, Math.round(45 * (stats.economy / 50)));
   const umkmSector = Math.max(20, Math.round(30 * (stats.civilLiberties / 50)));
   const bumnSector = Math.max(10, Math.round(15 * (stats.military / 50)));
   const informalSector = Math.max(5, 100 - (privateSector + umkmSector + bumnSector));
 
   const economyBreakdownData = [
-    { name: 'Industri Swasta & Korporasi', value: privateSector },
-    { name: 'UMKM & Perdagangan Rakyat', value: umkmSector },
-    { name: 'BUMN & Perusahaan Negara', value: bumnSector },
-    { name: 'Sektor Informal & Swadaya', value: informalSector },
+    { name: 'Industri Swasta', value: privateSector },
+    { name: 'UMKM & Perdagangan', value: umkmSector },
+    { name: 'BUMN', value: bumnSector },
+    { name: 'Sektor Informal', value: informalSector },
   ];
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 text-white font-sans max-w-xl mx-auto space-y-8">
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 text-white font-sans max-w-5xl mx-auto">
       
       {activeTab === 'demographics' ? (
-        <>
-          <div className="text-center space-y-3">
-            <h2 className="text-xl font-bold tracking-tight text-slate-100">
-              Demografi Penduduk {stats.name}
-            </h2>
+        /* GRID 1 KOLOM DI MOBILE, 2 KOLOM BERSAMPINGAN DI DESKTOP */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          
+          {/* DIAGRAM 1: DEMOGRAFI PENDUDUK */}
+          <div className="text-center space-y-3 bg-slate-950/40 p-4 rounded-xl border border-slate-800">
+            <h2 className="text-lg font-bold text-slate-100">Demografi Penduduk</h2>
             <div className="text-xs text-slate-300 space-y-1">
-              <p className="font-bold text-slate-100">
-                Total Populasi: {totalPop.toLocaleString('id-ID')} Jiwa ({popInMillions} Juta)
-              </p>
-              <p className="text-slate-400">
-                Rasio Usia Produktif: <span className="text-sky-400 font-semibold">{workingPct}%</span>
-              </p>
+              <p className="font-bold text-slate-100">Total: {totalPop.toLocaleString('id-ID')} Jiwa ({popInMillions} Juta)</p>
+              <p className="text-slate-400">Usia Produktif: <span className="text-sky-400 font-semibold">{workingPct}%</span></p>
             </div>
 
-            <div className="h-64 w-full my-2">
+            <div className="h-56 w-full my-2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={ageData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} stroke="#0f172a" strokeWidth={1.5}>
+                  <Pie data={ageData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} stroke="#0f172a" strokeWidth={1.5}>
                     {ageData.map((_, idx) => (
                       <Cell key={`age-${idx}`} fill={COLORS[idx % COLORS.length]} />
                     ))}
@@ -111,11 +102,11 @@ export default function Charts({ activeTab, stats }) {
               </ResponsiveContainer>
             </div>
 
-            <div className="border border-slate-700 rounded-lg p-3 bg-slate-950/60 text-[11px] text-slate-300">
-              <div className="grid grid-cols-3 gap-y-2 gap-x-1 text-left">
+            <div className="border border-slate-800 rounded-lg p-3 bg-slate-950 text-[11px] text-slate-300">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-left">
                 {ageData.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
+                    <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
                     <span className="truncate">{item.name}</span>
                   </div>
                 ))}
@@ -123,20 +114,17 @@ export default function Charts({ activeTab, stats }) {
             </div>
           </div>
 
-          <hr className="border-slate-800" />
-
-          <div className="text-center space-y-3">
-            <h2 className="text-xl font-bold tracking-tight text-slate-100">
-              Kondisi Kesehatan Masyarakat
-            </h2>
+          {/* DIAGRAM 2: KONDISI KESEHATAN */}
+          <div className="text-center space-y-3 bg-slate-950/40 p-4 rounded-xl border border-slate-800">
+            <h2 className="text-lg font-bold text-slate-100">Kondisi Kesehatan</h2>
             <p className="text-xs text-slate-400">
-              Cakupan Layanan Kesehatan Optimal: <span className="text-emerald-400 font-semibold">{optimalHealth}%</span>
+              Layanan Kesehatan Optimal: <span className="text-emerald-400 font-semibold">{optimalHealth}%</span>
             </p>
 
-            <div className="h-64 w-full my-2">
+            <div className="h-56 w-full my-2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={healthData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} stroke="#0f172a" strokeWidth={1.5}>
+                  <Pie data={healthData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} stroke="#0f172a" strokeWidth={1.5}>
                     {healthData.map((_, idx) => (
                       <Cell key={`hlth-${idx}`} fill={COLORS[(idx + 4) % COLORS.length]} />
                     ))}
@@ -146,33 +134,34 @@ export default function Charts({ activeTab, stats }) {
               </ResponsiveContainer>
             </div>
 
-            <div className="border border-slate-700 rounded-lg p-3 bg-slate-950/60 text-[11px] text-slate-300">
-              <div className="grid grid-cols-3 gap-y-2 gap-x-1 text-left">
+            <div className="border border-slate-800 rounded-lg p-3 bg-slate-950 text-[11px] text-slate-300">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-left">
                 {healthData.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[(idx + 4) % COLORS.length] }}></span>
+                    <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[(idx + 4) % COLORS.length] }}></span>
                     <span className="truncate">{item.name}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-        </>
+
+        </div>
       ) : (
-        <>
-          {/* ALOKASI APBN TRILIUN */}
-          <div className="text-center space-y-3">
-            <h2 className="text-xl font-bold tracking-tight text-slate-100">
-              Alokasi Anggaran APBN {stats.name}
-            </h2>
-            <p className="text-xs text-slate-400 font-medium">
-              <span className="font-bold text-slate-200">{totalExpenditureTrillion.toLocaleString('id-ID')} Triliun {stats.currency}</span> • {apbnPctOfGdp}% dari PDB
+        /* GRID 1 KOLOM DI MOBILE, 2 KOLOM BERSAMPINGAN DI DESKTOP */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          
+          {/* DIAGRAM 1: ALOKASI APBN */}
+          <div className="text-center space-y-3 bg-slate-950/40 p-4 rounded-xl border border-slate-800">
+            <h2 className="text-lg font-bold text-slate-100">Alokasi Anggaran APBN</h2>
+            <p className="text-xs text-slate-400">
+              <span className="font-bold text-slate-200">{totalExpenditureTrillion.toLocaleString('id-ID')} Triliun {stats.currency}</span> ({apbnPctOfGdp}% PDB)
             </p>
 
-            <div className="h-64 w-full my-2">
+            <div className="h-56 w-full my-2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={expenditureData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} stroke="#0f172a" strokeWidth={1.5}>
+                  <Pie data={expenditureData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} stroke="#0f172a" strokeWidth={1.5}>
                     {expenditureData.map((_, idx) => (
                       <Cell key={`exp-${idx}`} fill={COLORS[idx % COLORS.length]} />
                     ))}
@@ -182,11 +171,11 @@ export default function Charts({ activeTab, stats }) {
               </ResponsiveContainer>
             </div>
 
-            <div className="border border-slate-700 rounded-lg p-3 bg-slate-950/60 text-[11px] text-slate-300">
-              <div className="grid grid-cols-2 gap-y-2 gap-x-1 text-left">
+            <div className="border border-slate-800 rounded-lg p-3 bg-slate-950 text-[11px] text-slate-300">
+              <div className="grid grid-cols-2 gap-1.5 text-left">
                 {expenditureData.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
+                    <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
                     <span className="truncate">{item.name}: {item.value}%</span>
                   </div>
                 ))}
@@ -194,31 +183,18 @@ export default function Charts({ activeTab, stats }) {
             </div>
           </div>
 
-          <hr className="border-slate-800" />
-
-          {/* EKONOMI & PENDAPATAN */}
-          <div className="text-center space-y-3">
-            <h2 className="text-xl font-bold tracking-tight text-slate-100">
-              Perekonomian & Pendapatan Warga {stats.name}
-            </h2>
-            
-            <div className="text-xs text-slate-300 space-y-1">
-              <p className="font-bold text-slate-100">
-                PDB: {totalGDP.toLocaleString('id-ID')} Triliun {stats.currency}
-              </p>
-              <p className="text-slate-400">
-                Pendapatan Rata-Rata: <span className="text-amber-400 font-semibold">{stats.currency} {avgIncomeMonthly.toLocaleString('id-ID')}</span> / bulan
-              </p>
-              <div className="pt-2 text-[11px] text-slate-400 space-y-1 border-t border-slate-800/60 mt-2">
-                <p>10% Penduduk Termiskin: <span className="text-rose-400 font-semibold">{stats.currency} {poorest10Monthly.toLocaleString('id-ID')}</span> / bulan</p>
-                <p>10% Penduduk Terkaya: <span className="text-emerald-400 font-semibold">{stats.currency} {richest10Monthly.toLocaleString('id-ID')}</span> / bulan</p>
-              </div>
+          {/* DIAGRAM 2: PEREKONOMIAN */}
+          <div className="text-center space-y-3 bg-slate-950/40 p-4 rounded-xl border border-slate-800">
+            <h2 className="text-lg font-bold text-slate-100">Perekonomian & Pendapatan</h2>
+            <div className="text-xs text-slate-300 space-y-0.5">
+              <p className="font-bold text-slate-100">PDB: {totalGDP.toLocaleString('id-ID')} Triliun {stats.currency}</p>
+              <p className="text-slate-400">Rata-Rata: <span className="text-amber-400 font-semibold">{stats.currency} {avgIncomeMonthly.toLocaleString('id-ID')}</span>/bln</p>
             </div>
 
-            <div className="h-64 w-full my-2">
+            <div className="h-56 w-full my-2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={economyBreakdownData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} stroke="#0f172a" strokeWidth={1.5}>
+                  <Pie data={economyBreakdownData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} stroke="#0f172a" strokeWidth={1.5}>
                     {economyBreakdownData.map((_, idx) => (
                       <Cell key={`eco-${idx}`} fill={COLORS[idx % COLORS.length]} />
                     ))}
@@ -228,18 +204,19 @@ export default function Charts({ activeTab, stats }) {
               </ResponsiveContainer>
             </div>
 
-            <div className="border border-slate-700 rounded-lg p-3 bg-slate-950/60 text-[11px] text-slate-300">
-              <div className="grid grid-cols-2 gap-y-2 gap-x-2 text-left">
+            <div className="border border-slate-800 rounded-lg p-3 bg-slate-950 text-[11px] text-slate-300">
+              <div className="grid grid-cols-2 gap-1.5 text-left">
                 {economyBreakdownData.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
+                    <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
                     <span className="truncate">{item.name}: {item.value}%</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-        </>
+
+        </div>
       )}
 
     </div>
