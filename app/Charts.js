@@ -3,7 +3,6 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function Charts({ activeTab, stats }) {
-  // Palet warna khas tampilan diagram
   const COLORS = [
     '#3b71ca', '#a94442', '#a877db', '#778f3d', '#5bc0de', 
     '#f0ad4e', '#10b981', '#0284c7', '#d97706', '#92400e', 
@@ -14,7 +13,6 @@ export default function Charts({ activeTab, stats }) {
   const totalPop = stats.population;
   const popInMillions = (totalPop / 1000000).toFixed(1);
 
-  // Demografi Usia
   const youthPct = Math.max(15, Math.min(35, 30 - Math.round((stats.education - 50) * 0.1)));
   const elderlyPct = Math.max(5, Math.min(25, 10 + Math.round((stats.environment - 50) * 0.1)));
   const workingPct = 100 - youthPct - elderlyPct;
@@ -25,7 +23,6 @@ export default function Charts({ activeTab, stats }) {
     { name: 'Lansia (65+ thn)', value: elderlyPct }
   ];
 
-  // Status Kesehatan Populasi
   const optimalHealth = Math.max(20, Math.min(80, Math.round((stats.environment + stats.education) / 2)));
   const chronicHealth = Math.max(5, Math.min(40, Math.round((100 - stats.environment) * 0.4)));
   const minorHealth = 100 - optimalHealth - chronicHealth;
@@ -36,13 +33,14 @@ export default function Charts({ activeTab, stats }) {
     { name: 'Kondisi Kronis', value: chronicHealth }
   ];
 
-  // ==================== KALKULASI EKONOMI & APBN ====================
-  const totalGDP = Math.round(stats.economy * 2.66);
-  const avgIncome = Math.round((totalGDP * 1000000000) / totalPop);
-  const poorest10 = Math.round(avgIncome * 0.73 * (stats.civilLiberties / 50));
-  const richest10 = Math.round(avgIncome * 1.32 * (stats.economy / 50));
+  // ==================== KALKULASI EKONOMI & PENDAPATAN BULANAN REALISTIS ====================
+  const totalGDP = Math.round(stats.economy * 2.66); // Triliun/Miliar
 
-  // Alokasi Anggaran Belanja Negara (APBN)
+  // Kalkulasi Pendapatan Bulanan Realistis (Rupiah)
+  const avgIncomeMonthly = Math.round(6000000 * (stats.economy / 50));
+  const poorest10Monthly = Math.round(2000000 * (stats.civilLiberties / 50));
+  const richest10Monthly = Math.round(25000000 * (stats.economy / 50));
+
   const expenditureData = [
     { name: 'Pemerintahan & Birokrasi', value: Math.max(5, Math.round(stats.civilLiberties * 0.4)) },
     { name: 'Pertahanan & Militer', value: stats.military },
@@ -58,7 +56,6 @@ export default function Charts({ activeTab, stats }) {
     { name: 'Kesejahteraan Rakyat', value: Math.max(8, Math.round(stats.civilLiberties * 0.7)) },
   ];
 
-  // Rincian Struktur Sektor Ekonomi & Pajak
   const economyBreakdownData = [
     { name: 'Sektor Pemerintah', value: Math.max(20, Math.round(100 - stats.economy + 20)) },
     { name: 'BUMN / Industri Negara', value: Math.max(10, Math.round(stats.military * 0.3)) },
@@ -73,7 +70,6 @@ export default function Charts({ activeTab, stats }) {
       
       {activeTab === 'demographics' ? (
         <>
-          {/* DIAGRAM DEMOGRAFI 1: STRUKTUR USIA */}
           <div className="text-center space-y-3">
             <h2 className="text-xl font-bold tracking-tight text-slate-100">
               Demografi Penduduk {stats.name}
@@ -90,16 +86,7 @@ export default function Charts({ activeTab, stats }) {
             <div className="h-64 w-full my-2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={ageData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    stroke="#0f172a"
-                    strokeWidth={1.5}
-                  >
+                  <Pie data={ageData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} stroke="#0f172a" strokeWidth={1.5}>
                     {ageData.map((_, idx) => (
                       <Cell key={`age-${idx}`} fill={COLORS[idx % COLORS.length]} />
                     ))}
@@ -123,7 +110,6 @@ export default function Charts({ activeTab, stats }) {
 
           <hr className="border-slate-800" />
 
-          {/* DIAGRAM DEMOGRAFI 2: STATUS KESEHATAN */}
           <div className="text-center space-y-3">
             <h2 className="text-xl font-bold tracking-tight text-slate-100">
               Kondisi Kesehatan Masyarakat
@@ -135,16 +121,7 @@ export default function Charts({ activeTab, stats }) {
             <div className="h-64 w-full my-2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={healthData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    stroke="#0f172a"
-                    strokeWidth={1.5}
-                  >
+                  <Pie data={healthData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} stroke="#0f172a" strokeWidth={1.5}>
                     {healthData.map((_, idx) => (
                       <Cell key={`hlth-${idx}`} fill={COLORS[(idx + 4) % COLORS.length]} />
                     ))}
@@ -168,7 +145,6 @@ export default function Charts({ activeTab, stats }) {
         </>
       ) : (
         <>
-          {/* DIAGRAM APBN 1: ALOKASI ANGGARAN BELANJA */}
           <div className="text-center space-y-3">
             <h2 className="text-xl font-bold tracking-tight text-slate-100">
               Alokasi Anggaran APBN {stats.name}
@@ -180,16 +156,7 @@ export default function Charts({ activeTab, stats }) {
             <div className="h-64 w-full my-2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={expenditureData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    stroke="#0f172a"
-                    strokeWidth={1.5}
-                  >
+                  <Pie data={expenditureData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} stroke="#0f172a" strokeWidth={1.5}>
                     {expenditureData.map((_, idx) => (
                       <Cell key={`exp-${idx}`} fill={COLORS[idx % COLORS.length]} />
                     ))}
@@ -213,38 +180,29 @@ export default function Charts({ activeTab, stats }) {
 
           <hr className="border-slate-800" />
 
-          {/* DIAGRAM APBN 2: SEKTOR EKONOMI & PENDAPATAN PAJAK */}
+          {/* APBN & PENDAPATAN REALISTIS */}
           <div className="text-center space-y-3">
             <h2 className="text-xl font-bold tracking-tight text-slate-100">
-              Perekonomian & Sektor Pajak {stats.name}
+              Perekonomian & Pendapatan Warga {stats.name}
             </h2>
             
             <div className="text-xs text-slate-300 space-y-1">
               <p className="font-bold text-slate-100">
-                PDB: {totalGDP} Miliar {stats.currency}
+                PDB: {totalGDP} Triliun {stats.currency}
               </p>
               <p className="text-slate-400">
-                Pendapatan Rata-Rata: {avgIncome.toLocaleString('id-ID')} {stats.currency} per jiwa
+                Pendapatan Rata-Rata: <span className="text-amber-400 font-semibold">{stats.currency} {avgIncomeMonthly.toLocaleString('id-ID')}</span> / bulan
               </p>
-              <div className="pt-2 text-[11px] text-slate-400 space-y-0.5">
-                <p>10% Penduduk Termiskin: <span className="text-rose-400 font-semibold">{poorest10.toLocaleString('id-ID')} {stats.currency}</span> per jiwa</p>
-                <p>10% Penduduk Terkaya: <span className="text-emerald-400 font-semibold">{richest10.toLocaleString('id-ID')} {stats.currency}</span> per jiwa</p>
+              <div className="pt-2 text-[11px] text-slate-400 space-y-1 border-t border-slate-800/60 mt-2">
+                <p>10% Penduduk Termiskin: <span className="text-rose-400 font-semibold">{stats.currency} {poorest10Monthly.toLocaleString('id-ID')}</span> / bulan</p>
+                <p>10% Penduduk Terkaya: <span className="text-emerald-400 font-semibold">{stats.currency} {richest10Monthly.toLocaleString('id-ID')}</span> / bulan</p>
               </div>
             </div>
 
             <div className="h-64 w-full my-2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={economyBreakdownData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    stroke="#0f172a"
-                    strokeWidth={1.5}
-                  >
+                  <Pie data={economyBreakdownData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} stroke="#0f172a" strokeWidth={1.5}>
                     {economyBreakdownData.map((_, idx) => (
                       <Cell key={`eco-${idx}`} fill={COLORS[idx % COLORS.length]} />
                     ))}
