@@ -2,87 +2,44 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-export default function Charts({ ageData, healthData, budgetAllocationData, taxContributionData, COLORS }) {
+export default function Charts({ activeTab, stats }) {
+  const ageData = [{ name: 'Anak', value: 25 }, { name: 'Produktif', value: 65 }, { name: 'Lansia', value: 10 }];
+  const healthData = [{ name: 'Sehat', value: Math.max(10, stats.environment + 10) }, { name: 'Sakit Ringan', value: 30 }, { name: 'Kronis', value: Math.max(5, 100 - stats.environment) }];
+  const budgetData = [{ name: 'Militer', value: stats.military }, { name: 'Pendidikan', value: stats.education }, { name: 'Ekonomi', value: stats.economy }, { name: 'Lingkungan', value: stats.environment }, { name: 'Sipil', value: stats.civilLiberties }];
+  const taxData = [{ name: '10% Kaya', value: Math.min(80, Math.max(40, stats.economy + 20)) }, { name: '80% Menengah', value: 30 }, { name: '10% Miskin', value: Math.max(2, 100 - stats.civilLiberties - 40) }];
+  const COLORS = ['#38bdf8', '#34d399', '#f43f5e', '#a855f7', '#fbbf24'];
+
+  const renderChart = (title, data) => (
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+      <h3 className="text-xs font-bold mb-2">{title}</h3>
+      <div className="h-44 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={50} label>
+              {data.map((_, idx) => <Cell key={idx} fill={COLORS[idx % COLORS.length]} />)}
+            </Pie>
+            <Tooltip />
+            <Legend wrapperStyle={{ fontSize: '10px' }} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      
-      {/* Demografi Populasi */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-        <h3 className="text-sm font-bold text-slate-200 mb-1">Struktur Demografi & Usia</h3>
-        <p className="text-xs text-slate-400 mb-4">Komposisi penduduk berdasarkan kelompok umur.</p>
-        <div className="h-48 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie data={ageData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#8884d8" label>
-                {ageData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend wrapperStyle={{ fontSize: '11px' }} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Kondisi Kesehatan */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-        <h3 className="text-sm font-bold text-slate-200 mb-1">Status Kesehatan Populasi</h3>
-        <p className="text-xs text-slate-400 mb-4">Kondisi kesehatan umum warga masyarakat.</p>
-        <div className="h-48 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie data={healthData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#82ca9d" label>
-                {healthData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend wrapperStyle={{ fontSize: '11px' }} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Alokasi Anggaran Sektor */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-        <h3 className="text-sm font-bold text-slate-200 mb-1">Alokasi Anggaran Sektor Negara</h3>
-        <p className="text-xs text-slate-400 mb-4">Distribusi pengeluaran kas APBN ke sektor kunci.</p>
-        <div className="h-48 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie data={budgetAllocationData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#ffc658" label>
-                {budgetAllocationData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend wrapperStyle={{ fontSize: '11px' }} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Distribusi Pajak Penduduk */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-        <h3 className="text-sm font-bold text-slate-200 mb-1">Pendapatan Pajak Menurut Demografi</h3>
-        <p className="text-xs text-slate-400 mb-4">Proporsi kontribusi pajak 10% penduduk kaya vs miskin.</p>
-        <div className="h-48 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie data={taxContributionData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#ff7300" label>
-                {taxContributionData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[(index + 3) % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend wrapperStyle={{ fontSize: '11px' }} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-    </section>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {activeTab === 'demographics' ? (
+        <>
+          {renderChart('Struktur Usia', ageData)}
+          {renderChart('Status Kesehatan', healthData)}
+        </>
+      ) : (
+        <>
+          {renderChart('Alokasi Anggaran APBN', budgetData)}
+          {renderChart('Kontribusi Pajak', taxData)}
+        </>
+      )}
+    </div>
   );
 }
 
