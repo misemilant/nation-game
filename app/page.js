@@ -34,16 +34,15 @@ export default function Game() {
     setCurrentIssue(getRandomUnansweredIssue([]));
   }, []);
 
-  // Cek Kondisi Game Over setiap kali statistik berubah
   useEffect(() => {
     if (stats.economy <= 0) {
-      setGameOverReason("Ekonomi negara Anda hancur total! Inflasi ekstrem memicu kebangkrutan nasional.");
+      setGameOverReason("Ekonomi negara Anda hancur total! Kebangkrutan nasional memicu krisis multidimensi.");
     } else if (stats.civilLiberties <= 0) {
-      setGameOverReason("Kebebasan sipil hilang total! Pemberontakan massal meruntuhkan pemerintahan Anda.");
+      setGameOverReason("Kebebasan sipil hilang total! Pemberontakan massal meruntuhkan rezim Anda.");
     } else if (stats.military >= 100) {
-      setGameOverReason("Kekuatan militer terlalu dominan! Para jenderal melakukan kudeta dan mengambil alih kekuasaan.");
+      setGameOverReason("Kekuatan militer terlalu dominan! Para jenderal melakukan kudeta mengambil alih kekuasaan.");
     } else if (stats.education <= 0) {
-      setGameOverReason("Tingkat pendidikan menyentuh titik terendah! Krisis SDM membuat sistem negara tidak berfungsi.");
+      setGameOverReason("Tingkat pendidikan menyentuh titik terendah! Krisis SDM membekukan sistem pemerintahan.");
     } else if (stats.environment <= 0) {
       setGameOverReason("Bencana ekologis total terjadi! Kerusakan lingkungan membuat wilayah negara tidak layak huni.");
     }
@@ -102,29 +101,29 @@ export default function Game() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-6 font-sans">
+    <div className="min-h-screen bg-slate-950 text-white p-4 md:p-6 font-sans">
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header Dashboard Negara */}
-        <header className="bg-slate-800 border border-slate-700 rounded-lg p-6 shadow-xl relative">
+        <header className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl relative">
           {!isEditing ? (
             <div>
               <div className="flex justify-between items-start">
                 <div>
-                  <h1 className="text-3xl font-bold text-amber-400">{stats.name}</h1>
-                  <p className="text-sm italic text-slate-400 mt-1">"{stats.motto}"</p>
+                  <h1 className="text-3xl font-extrabold tracking-tight text-white">{stats.name}</h1>
+                  <p className="text-sm italic text-blue-200/70 mt-1">"{stats.motto}"</p>
                 </div>
                 {!gameOverReason && (
                   <button 
                     onClick={() => setIsEditing(true)}
-                    className="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded border border-slate-600 transition"
+                    className="text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium px-3 py-1.5 rounded border border-blue-400/30 transition"
                   >
                     Edit Profil
                   </button>
                 )}
               </div>
               <p className="text-sm text-slate-300 mt-3">
-                Klasifikasi Rezim: <span className="text-emerald-400 font-semibold">{getGovernmentType()}</span>
+                Klasifikasi Rezim: <span className="text-blue-400 font-semibold">{getGovernmentType()}</span>
               </p>
             </div>
           ) : (
@@ -135,7 +134,7 @@ export default function Game() {
                   type="text" 
                   value={tempName} 
                   onChange={(e) => setTempName(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-sm text-amber-400 focus:outline-none"
+                  className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div>
@@ -144,57 +143,93 @@ export default function Game() {
                   type="text" 
                   value={tempMotto} 
                   onChange={(e) => setTempMotto(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-sm text-slate-300 focus:outline-none"
+                  className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-sm text-slate-300 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="text-xs bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3 py-1.5 rounded">
+                <button type="submit" className="text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1.5 rounded">
                   Simpan
                 </button>
-                <button type="button" onClick={() => setIsEditing(false)} className="text-xs bg-slate-700 px-3 py-1.5 rounded">
+                <button type="button" onClick={() => setIsEditing(false)} className="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded">
                   Batal
                 </button>
               </div>
             </form>
           )}
 
-          {/* Grid Statistik */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-6">
-            <div className="bg-slate-900 p-3 rounded border border-slate-700">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Ekonomi</span>
-              <p className="text-xl font-bold text-blue-400">{stats.economy}/100</p>
+          {/* Grid Progress Bar Statistik */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-6">
+            
+            {/* Ekonomi */}
+            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[11px] text-slate-300 uppercase tracking-wider font-semibold">Ekonomi</span>
+                <span className="text-xs font-bold text-sky-400">{stats.economy}%</span>
+              </div>
+              <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                <div className="bg-sky-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${stats.economy}%` }}></div>
+              </div>
             </div>
-            <div className="bg-slate-900 p-3 rounded border border-slate-700">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Kebebasan Sipil</span>
-              <p className="text-xl font-bold text-green-400">{stats.civilLiberties}/100</p>
+
+            {/* Kebebasan Sipil */}
+            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[11px] text-slate-300 uppercase tracking-wider font-semibold">Kebebasan Sipil</span>
+                <span className="text-xs font-bold text-emerald-400">{stats.civilLiberties}%</span>
+              </div>
+              <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                <div className="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${stats.civilLiberties}%` }}></div>
+              </div>
             </div>
-            <div className="bg-slate-900 p-3 rounded border border-slate-700">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Militer</span>
-              <p className="text-xl font-bold text-red-400">{stats.military}/100</p>
+
+            {/* Militer */}
+            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[11px] text-slate-300 uppercase tracking-wider font-semibold">Militer</span>
+                <span className="text-xs font-bold text-rose-400">{stats.military}%</span>
+              </div>
+              <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                <div className="bg-rose-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${stats.military}%` }}></div>
+              </div>
             </div>
-            <div className="bg-slate-900 p-3 rounded border border-slate-700">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Pendidikan</span>
-              <p className="text-xl font-bold text-purple-400">{stats.education}/100</p>
+
+            {/* Pendidikan */}
+            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[11px] text-slate-300 uppercase tracking-wider font-semibold">Pendidikan</span>
+                <span className="text-xs font-bold text-indigo-400">{stats.education}%</span>
+              </div>
+              <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                <div className="bg-indigo-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${stats.education}%` }}></div>
+              </div>
             </div>
-            <div className="bg-slate-900 p-3 rounded border border-slate-700 col-span-2 md:col-span-1">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Lingkungan</span>
-              <p className="text-xl font-bold text-emerald-400">{stats.environment}/100</p>
+
+            {/* Lingkungan */}
+            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[11px] text-slate-300 uppercase tracking-wider font-semibold">Lingkungan</span>
+                <span className="text-xs font-bold text-teal-400">{stats.environment}%</span>
+              </div>
+              <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                <div className="bg-teal-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${stats.environment}%` }}></div>
+              </div>
             </div>
+
           </div>
         </header>
 
-        {/* Tampilan Game Over ATAU Issue Card */}
-        <main className="bg-slate-800 border border-slate-700 rounded-lg p-6 shadow-xl min-h-[250px] flex items-center justify-center">
+        {/* Main Issue Card / Game Over */}
+        <main className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl min-h-[250px] flex items-center justify-center">
           {gameOverReason ? (
             <div className="text-center py-6 space-y-4">
-              <span className="text-xs font-bold px-3 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30 uppercase tracking-widest">
+              <span className="text-xs font-bold px-3 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-widest">
                 GAME OVER - PEMERINTAHAN RUNTUH
               </span>
-              <p className="text-lg font-medium text-slate-200 max-w-lg mx-auto">{gameOverReason}</p>
-              <p className="text-xs text-slate-400">Anda berhasil bertahan selama {answeredIssueIds.length} keputusan kebijakan.</p>
+              <p className="text-lg font-medium text-slate-100 max-w-lg mx-auto">{gameOverReason}</p>
+              <p className="text-xs text-slate-400">Anda bertahan selama {answeredIssueIds.length} keputusan kebijakan.</p>
               <button
                 onClick={handleRestart}
-                className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-2.5 rounded-lg text-sm transition shadow-lg mt-2"
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition shadow-md mt-2"
               >
                 Mulai Ulang Negara Baru
               </button>
@@ -202,35 +237,35 @@ export default function Game() {
           ) : currentIssue ? (
             <div className="w-full">
               <div className="flex justify-between items-center">
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
                   Isu Ditangani: #{answeredIssueIds.length + 1}
                 </span>
                 <span className="text-xs text-slate-400">Sisa Isu: {ISSUES.length - answeredIssueIds.length}</span>
               </div>
-              <h2 className="text-xl font-bold mt-3 mb-2">{currentIssue.title}</h2>
-              <p className="text-slate-300 leading-relaxed mb-6">{currentIssue.description}</p>
+              <h2 className="text-xl font-bold mt-4 mb-2 text-white">{currentIssue.title}</h2>
+              <p className="text-slate-300 leading-relaxed mb-6 text-sm">{currentIssue.description}</p>
 
               <div className="space-y-3">
                 {currentIssue.options.map((option, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleChoice(option.effects, option.text)}
-                    className="w-full text-left p-4 rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-600 transition duration-150 text-sm leading-snug"
+                    className="w-full text-left p-4 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 transition duration-150 text-sm leading-snug text-slate-200 hover:border-blue-500/50"
                   >
-                    <span className="font-bold text-amber-400 mr-2">{idx + 1}.</span> {option.text}
+                    <span className="font-bold text-blue-400 mr-2">{idx + 1}.</span> {option.text}
                   </button>
                 ))}
               </div>
             </div>
           ) : (
             <div className="text-center py-6">
-              <h2 className="text-2xl font-bold text-amber-400 mb-2">Semua Isu Selesai!</h2>
+              <h2 className="text-2xl font-bold text-white mb-2">Semua Isu Selesai!</h2>
               <p className="text-slate-400 text-sm">
                 Selamat! Anda berhasil memimpin negara dengan baik tanpa mengalami keruntuhan.
               </p>
               <button
                 onClick={handleRestart}
-                className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-2.5 rounded-lg text-sm transition shadow-lg mt-4"
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition shadow-md mt-4"
               >
                 Mainkan Lagi
               </button>
@@ -240,9 +275,9 @@ export default function Game() {
 
         {/* History */}
         {history.length > 0 && (
-          <section className="bg-slate-800 border border-slate-700 rounded-lg p-6">
-            <h3 className="text-lg font-bold mb-4 text-slate-300">Riwayat Kebijakan Terbaru</h3>
-            <ul className="space-y-3 text-sm text-slate-400 divide-y divide-slate-700 max-h-60 overflow-y-auto">
+          <section className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl">
+            <h3 className="text-base font-bold mb-4 text-white">Riwayat Kebijakan Terbaru</h3>
+            <ul className="space-y-3 text-sm text-slate-400 divide-y divide-slate-800 max-h-60 overflow-y-auto">
               {history.map((item, index) => (
                 <li key={index} className="pt-3 first:pt-0">
                   <span className="font-semibold text-slate-200">{item.issueTitle}:</span> "{item.choice}"
