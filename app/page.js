@@ -229,7 +229,6 @@ export default function Game() {
     );
   }
 
-  // LABEL DALAM BAHASA INDONESIA
   const statLabels = [
     { key: 'economy', label: 'Ekonomi' },
     { key: 'civilLiberties', label: 'Kebebasan Sipil' },
@@ -287,7 +286,6 @@ export default function Game() {
             </form>
           )}
 
-          {/* Indikator Statistik (Bahasa Indonesia) */}
           <div className="grid grid-cols-5 gap-2 mt-4">
             {statLabels.map((item) => (
               <div key={item.key} className="bg-slate-950 p-2 rounded border border-slate-800">
@@ -300,19 +298,52 @@ export default function Game() {
           </div>
         </header>
 
+        {/* Tab Navigation */}
         <nav className="flex gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800 text-xs overflow-x-auto">
           <button onClick={() => setActiveTab('summary')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'summary' ? 'bg-blue-600' : 'text-slate-400'}`}>📋 Ringkasan Negara</button>
           <button onClick={() => setActiveTab('issues')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'issues' ? 'bg-blue-600' : 'text-slate-400'}`}>📰 Warta Isu ({ISSUES.length - answeredIssueIds.length})</button>
+          <button onClick={() => setActiveTab('policies')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'policies' ? 'bg-blue-600' : 'text-slate-400'}`}>📜 Kebijakan Aktif ({history.length})</button>
           <button onClick={() => setActiveTab('finance')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'finance' ? 'bg-blue-600' : 'text-slate-400'}`}>💰 APBN & Ekonomi</button>
           <button onClick={() => setActiveTab('demographics')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'demographics' ? 'bg-blue-600' : 'text-slate-400'}`}>👥 Demografi</button>
         </nav>
 
+        {/* Tab Ringkasan */}
         {activeTab === 'summary' && (
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 font-serif text-slate-200 leading-relaxed text-sm">
             {getNationSummaryNarrative().map((paragraph, idx) => <p key={idx}>{paragraph}</p>)}
           </div>
         )}
 
+        {/* Tab Kebijakan Aktif (Gaya NationStates) */}
+        {activeTab === 'policies' && (
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 text-slate-100 font-sans">
+            <h2 className="text-xl font-bold tracking-tight text-slate-100 border-b border-slate-800 pb-3">
+              Kebijakan & Keputusan Negara
+            </h2>
+
+            {history.length === 0 ? (
+              <p className="text-xs text-slate-400 py-4 text-center italic">
+                Belum ada kebijakan yang diambil. Selesaikan isu di "Warta Isu" untuk memberlakukan hukum dan kebijakan baru.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {history.map((item, idx) => (
+                  <div key={idx} className="bg-slate-950 border border-slate-800/80 rounded-lg p-4 space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-blue-400 tracking-wider">
+                      Kebijakan #{history.length - idx}
+                    </span>
+                    <h3 className="text-sm font-bold text-slate-200">{item.issueTitle}</h3>
+                    <p className="text-xs text-slate-300 italic bg-slate-900/60 p-2.5 rounded border border-slate-800 mt-2">
+                      "{item.choice}"
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab Warta Isu */}
         {activeTab === 'issues' && (
           <main className="bg-[#f4ebd0] text-slate-900 border-2 border-[#d3c49d] rounded-xl p-5 font-serif">
             {currentIssue ? (
@@ -335,6 +366,7 @@ export default function Game() {
           </main>
         )}
 
+        {/* Tab Charts */}
         {(activeTab === 'demographics' || activeTab === 'finance') && (
           <Charts activeTab={activeTab} stats={stats} />
         )}
