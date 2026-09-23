@@ -13,8 +13,8 @@ export default function Charts({ activeTab, stats }) {
   const totalPop = stats.population;
   const popInMillions = (totalPop / 1000000).toFixed(1);
 
-  const youthPct = Math.max(15, Math.min(35, 30 - Math.round((stats.education - 50) * 0.1)));
-  const elderlyPct = Math.max(5, Math.min(25, 10 + Math.round((stats.environment - 50) * 0.1)));
+  const youthPct = Math.max(15, Math.min(35, 26 - Math.round((stats.education - 50) * 0.1)));
+  const elderlyPct = Math.max(5, Math.min(25, 7 + Math.round((stats.environment - 50) * 0.1)));
   const workingPct = 100 - youthPct - elderlyPct;
 
   const ageData = [
@@ -33,13 +33,14 @@ export default function Charts({ activeTab, stats }) {
     { name: 'Kondisi Kronis', value: chronicHealth }
   ];
 
-  // ==================== KALKULASI EKONOMI & PENDAPATAN BULANAN REALISTIS ====================
-  const totalGDP = Math.round(stats.economy * 2.66); // Triliun/Miliar
+  // ==================== KALKULASI EKONOMI SESUAI KONDISI INDONESIA ====================
+  // PDB Indonesia di kisaran Rp 21.000+ Triliun
+  const totalGDP = Math.round(21000 * (stats.economy / 50)); 
 
-  // Kalkulasi Pendapatan Bulanan Realistis (Rupiah)
-  const avgIncomeMonthly = Math.round(6000000 * (stats.economy / 50));
-  const poorest10Monthly = Math.round(2000000 * (stats.civilLiberties / 50));
-  const richest10Monthly = Math.round(25000000 * (stats.economy / 50));
+  // Standar Pendapatan Bulanan Riil Indonesia (Rupiah)
+  const avgIncomeMonthly = Math.round(5200000 * (stats.economy / 50));
+  const poorest10Monthly = Math.round(1800000 * (stats.civilLiberties / 50));
+  const richest10Monthly = Math.round(28000000 * (stats.economy / 50));
 
   const expenditureData = [
     { name: 'Pemerintahan & Birokrasi', value: Math.max(5, Math.round(stats.civilLiberties * 0.4)) },
@@ -48,19 +49,19 @@ export default function Charts({ activeTab, stats }) {
     { name: 'Lingkungan Hidup', value: stats.environment },
     { name: 'Layanan Kesehatan', value: Math.max(8, Math.round(stats.education * 0.7)) },
     { name: 'Industri & Manufaktur', value: Math.max(10, Math.round(stats.economy * 0.8)) },
-    { name: 'Bantuan Luar Negeri', value: 5 },
+    { name: 'Bantuan Luar Negeri', value: 3 },
     { name: 'Hukum & Keamanan', value: Math.max(10, Math.round(stats.military * 0.6)) },
     { name: 'Transportasi Publik', value: Math.max(8, Math.round(stats.civilLiberties * 0.6)) },
     { name: 'Kebijakan Sosial', value: Math.max(7, Math.round(stats.civilLiberties * 0.5)) },
-    { name: 'Keagamaan', value: 4 },
+    { name: 'Keagamaan', value: 5 },
     { name: 'Kesejahteraan Rakyat', value: Math.max(8, Math.round(stats.civilLiberties * 0.7)) },
   ];
 
   const economyBreakdownData = [
-    { name: 'Sektor Pemerintah', value: Math.max(20, Math.round(100 - stats.economy + 20)) },
-    { name: 'BUMN / Industri Negara', value: Math.max(10, Math.round(stats.military * 0.3)) },
-    { name: 'Industri Swasta', value: Math.max(15, Math.round(stats.economy * 0.8)) },
-    { name: 'Pasar Gelap (Prakiraan)', value: Math.max(2, Math.round((100 - stats.civilLiberties) * 0.1)) },
+    { name: 'Sektor Pemerintah', value: Math.max(15, Math.round(100 - stats.economy + 15)) },
+    { name: 'BUMN / Industri Negara', value: Math.max(12, Math.round(stats.military * 0.35)) },
+    { name: 'Industri Swasta & UMKM', value: Math.max(35, Math.round(stats.economy * 0.9)) },
+    { name: 'Sektor Informal & Lainnya', value: Math.max(5, Math.round((100 - stats.civilLiberties) * 0.15)) },
   ];
 
   const totalExpenditure = expenditureData.reduce((acc, curr) => acc + curr.value, 0);
@@ -180,7 +181,7 @@ export default function Charts({ activeTab, stats }) {
 
           <hr className="border-slate-800" />
 
-          {/* APBN & PENDAPATAN REALISTIS */}
+          {/* EKONOMI & PENDAPATAN RIIL INDONESIA */}
           <div className="text-center space-y-3">
             <h2 className="text-xl font-bold tracking-tight text-slate-100">
               Perekonomian & Pendapatan Warga {stats.name}
@@ -188,7 +189,7 @@ export default function Charts({ activeTab, stats }) {
             
             <div className="text-xs text-slate-300 space-y-1">
               <p className="font-bold text-slate-100">
-                PDB: {totalGDP} Triliun {stats.currency}
+                PDB: {totalGDP.toLocaleString('id-ID')} Triliun {stats.currency}
               </p>
               <p className="text-slate-400">
                 Pendapatan Rata-Rata: <span className="text-amber-400 font-semibold">{stats.currency} {avgIncomeMonthly.toLocaleString('id-ID')}</span> / bulan
