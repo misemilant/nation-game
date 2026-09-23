@@ -52,7 +52,6 @@ export default function Game() {
 
   const getBarColor = (val) => val >= 100 ? "bg-emerald-500" : val < 50 ? "bg-rose-500" : "bg-amber-400";
 
-  // Penentuan Ideologi Dinamis
   const getIdeology = () => {
     if (stats.military > 70) return "Militerisme Nasionalis";
     if (stats.environment > 60 && stats.civilLiberties > 60) return "Sosialis Hijau";
@@ -62,29 +61,39 @@ export default function Game() {
     return "Pancasila / Centrisme Pragmatis";
   };
 
-  // Penentuan Agama Dinamis
   const getReligion = () => {
     if (stats.education > 75 && stats.civilLiberties > 75) return "Sekularisme Moderat";
     if (stats.civilLiberties < 35 && stats.education < 40) return "Religius Konservatif";
     return "Pluralisme Moderat";
   };
 
-  // Narasi Ringkasan ala NationStates
+  // Narasi Otomatis ala NationStates
   const getNationSummaryNarrative = () => {
     const popFormatted = (stats.population / 1000000).toFixed(1);
     
-    let p1 = `${stats.name} adalah negara berkembang yang dipimpin dengan haluan ${getIdeology()} dan mayoritas budaya ${getReligion()}. `;
-    p1 += stats.military > 60 ? "Negara ini terkenal dengan pertahanan militer yang kuat. " : "Masyarakat hidup dalam stabilitas publik yang terjaga. ";
-    p1 += `Populasi sebanyak ${popFormatted} juta jiwa menikmati tingkat kesetaraan sosial yang `;
-    p1 += stats.civilLiberties > 60 ? "sangat tinggi. " : "terbatas oleh regulasi pemerintah. ";
+    let p1 = `${stats.name} adalah negara yang berkembang dan aman, terkenal karena `;
+    p1 += stats.military > 60 ? "wajib militer yang ketat dan pertahanan yang kuat. " : "kebebasan publik serta stabilitas wilayahnya. ";
+    p1 += `Populasi sebanyak ${popFormatted} juta jiwa hidup dengan tingkat kesetaraan sosial yang `;
+    p1 += stats.civilLiberties > 60 ? "sangat tinggi dan menjunjung hak asasi manusia. " : "terbatas dengan kontrol ketat dari pemerintah. ";
 
-    let p2 = `Pemerintah secara aktif mengalokasikan kas APBN untuk Sektor Kesehatan, Industri & Manufaktur, serta Transportasi Publik. `;
-    p2 += `Tingkat pajak rata-rata berada pada angka ${Math.round(10 + (stats.economy * 0.4))}% dari total pendapatan masyarakat.`;
+    let p2 = `Pemerintah saat ini secara aktif menyeimbangkan alokasi anggaran antara `;
+    let focuses = [];
+    if (stats.education > 50) focuses.push("Pendidikan & Kesehatan");
+    if (stats.military > 50) focuses.push("Pertahanan Nasional");
+    if (stats.environment > 50) focuses.push("Pelestarian Lingkungan");
+    if (stats.economy > 50) focuses.push("Industri & Transportasi Publik");
+    p2 += focuses.length > 0 ? focuses.join(", ") : "kebutuhan dasar negara";
+    p2 += `. Tingkat pajak rata-rata diperkirakan sebesar ${Math.round(10 + (stats.economy * 0.5))}% dari pendapatan.`;
 
-    let p3 = `Sektor Industri menjadi penyumbang pajak utama, didukung kontribusi dari Sektor Transportasi Publik dan Layanan Kesehatan. `;
-    p3 += `Hewan khas resmi negara ${stats.name} adalah ${stats.nationalAnimal}.`;
+    let p3 = `Perekonomian ${stats.name} bernilai sekitar ${Math.round(stats.economy * 2.5)} miliar ${stats.currency} per tahun, `;
+    p3 += stats.economy > 60 ? "dipimpin oleh sektor industri manufaktur dan perdagangan bebas yang maju. " : "dengan intervensi negara yang cukup dominan di berbagai sektor. ";
+    p3 += `Pendapatan rata-rata warga terdistribusi secara bervariasi antar kelompok sosial.`;
 
-    return [p1, p2, p3];
+    let p4 = `Tingkat kriminalitas tergolong `;
+    p4 += stats.civilLiberties < 40 || stats.military > 60 ? "sangat rendah berkat pengawasan aparat yang ketat. " : "terkendali dengan pendekatan hukum yang progresif. ";
+    p4 += `Hewan resmi khas negara ${stats.name} adalah ${stats.nationalAnimal}.`;
+
+    return [p1, p2, p3, p4];
   };
 
   const handleSaveProfile = (e) => {
@@ -123,7 +132,7 @@ export default function Game() {
     <div className="min-h-screen bg-slate-950 text-white p-4 font-sans">
       <div className="max-w-4xl mx-auto space-y-4">
         
-        {/* Header Metadata */}
+        {/* Header Profil */}
         <header className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
           {!isEditing ? (
             <div>
@@ -173,15 +182,15 @@ export default function Game() {
           </div>
         </header>
 
-        {/* Navigation Bar */}
+        {/* Tab Navigation */}
         <nav className="flex gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800 text-xs overflow-x-auto">
-          <button onClick={() => setActiveTab('summary')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'summary' ? 'bg-blue-600' : 'text-slate-400'}`}>📋 Ringkasan</button>
+          <button onClick={() => setActiveTab('summary')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'summary' ? 'bg-blue-600' : 'text-slate-400'}`}>📋 Ringkasan Negara</button>
           <button onClick={() => setActiveTab('issues')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'issues' ? 'bg-blue-600' : 'text-slate-400'}`}>📰 Warta Isu ({ISSUES.length - answeredIssueIds.length})</button>
+          <button onClick={() => setActiveTab('finance')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'finance' ? 'bg-blue-600' : 'text-slate-400'}`}>💰 APBN, Pajak & Sektor</button>
           <button onClick={() => setActiveTab('demographics')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'demographics' ? 'bg-blue-600' : 'text-slate-400'}`}>👥 Demografi</button>
-          <button onClick={() => setActiveTab('finance')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'finance' ? 'bg-blue-600' : 'text-slate-400'}`}>💰 APBN & Ekonomi</button>
         </nav>
 
-        {/* Tab Ringkasan */}
+        {/* Tab 1: Ringkasan Paragraf Otomatis */}
         {activeTab === 'summary' && (
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 font-serif text-slate-200 leading-relaxed text-sm">
             {getNationSummaryNarrative().map((paragraph, idx) => (
@@ -190,7 +199,7 @@ export default function Game() {
           </div>
         )}
 
-        {/* Tab Warta Isu */}
+        {/* Tab 2: Warta Isu */}
         {activeTab === 'issues' && (
           <main className="bg-[#f4ebd0] text-slate-900 border-2 border-[#d3c49d] rounded-xl p-5 font-serif">
             {gameOverReason ? (
@@ -220,7 +229,7 @@ export default function Game() {
           </main>
         )}
 
-        {/* Tab Grafik (Demografi & APBN) */}
+        {/* Tab 3 & 4: Kartu Statistik APBN & Demografi */}
         {(activeTab === 'demographics' || activeTab === 'finance') && (
           <Charts activeTab={activeTab} stats={stats} />
         )}
