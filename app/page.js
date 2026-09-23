@@ -11,7 +11,7 @@ export default function Game() {
   const [session, setSession] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
+  const [authMode, setAuthMode] = useState('login');
   const [authError, setAuthError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -38,9 +38,7 @@ export default function Game() {
   const [currentIssue, setCurrentIssue] = useState(null);
   const [answeredIssueIds, setAnsweredIssueIds] = useState([]);
   const [history, setHistory] = useState([]);
-  const [gameOverReason, setGameOverReason] = useState(null);
 
-  // Cek Sesi User & Load Save Data dari Supabase
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -131,7 +129,6 @@ export default function Game() {
     setAnsweredIssueIds(newAnsweredIds);
     setCurrentIssue(getRandomUnansweredIssue(newAnsweredIds));
 
-    // Otomatis Simpan Progress ke Supabase
     saveGameData(newStats, newAnsweredIds, newHistory);
   };
 
@@ -166,7 +163,6 @@ export default function Game() {
     return "Pluralisme Moderat";
   };
 
-  // NARASI OTOMATIS BERUBAH DINAMIS + HEWAN KHAS (GAYA NATIONSTATES)
   const getNationSummaryNarrative = () => {
     const popFormatted = (stats.population / 1000000).toFixed(1);
     
@@ -199,7 +195,6 @@ export default function Game() {
     return <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center text-sm">Memuat Game...</div>;
   }
 
-  // TAMPILAN FORM AUTH
   if (!session) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 font-sans">
@@ -234,18 +229,24 @@ export default function Game() {
     );
   }
 
-  // TAMPILAN GAMEPLAY
+  // LABEL DALAM BAHASA INDONESIA
+  const statLabels = [
+    { key: 'economy', label: 'Ekonomi' },
+    { key: 'civilLiberties', label: 'Kebebasan Sipil' },
+    { key: 'military', label: 'Militer' },
+    { key: 'education', label: 'Pendidikan' },
+    { key: 'environment', label: 'Lingkungan' },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-950 text-white p-4 font-sans">
       <div className="max-w-4xl mx-auto space-y-4">
         
-        {/* Top User Info Bar */}
         <div className="flex justify-between items-center text-xs bg-slate-900 border border-slate-800 p-3 rounded-xl">
           <span className="text-slate-400">Akun: <strong className="text-white">{session.user.email}</strong></span>
           <button onClick={handleLogout} className="text-xs bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white px-3 py-1 rounded border border-rose-500/30 transition">Keluar</button>
         </div>
 
-        {/* Header Profil */}
         <header className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
           {!isEditing ? (
             <div>
@@ -286,19 +287,19 @@ export default function Game() {
             </form>
           )}
 
+          {/* Indikator Statistik (Bahasa Indonesia) */}
           <div className="grid grid-cols-5 gap-2 mt-4">
-            {['economy', 'civilLiberties', 'military', 'education', 'environment'].map((item) => (
-              <div key={item} className="bg-slate-950 p-2 rounded border border-slate-800">
-                <span className="text-[9px] uppercase block text-slate-400 truncate">{item}</span>
+            {statLabels.map((item) => (
+              <div key={item.key} className="bg-slate-950 p-2 rounded border border-slate-800">
+                <span className="text-[9px] uppercase block text-slate-400 truncate font-semibold">{item.label}</span>
                 <div className="w-full bg-slate-800 rounded-full h-1.5 mt-1">
-                  <div className={`h-1.5 rounded-full ${getBarColor(stats[item])}`} style={{ width: `${stats[item]}%` }}></div>
+                  <div className={`h-1.5 rounded-full ${getBarColor(stats[item.key])}`} style={{ width: `${stats[item.key]}%` }}></div>
                 </div>
               </div>
             ))}
           </div>
         </header>
 
-        {/* Navigation Tabs */}
         <nav className="flex gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800 text-xs overflow-x-auto">
           <button onClick={() => setActiveTab('summary')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'summary' ? 'bg-blue-600' : 'text-slate-400'}`}>📋 Ringkasan Negara</button>
           <button onClick={() => setActiveTab('issues')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'issues' ? 'bg-blue-600' : 'text-slate-400'}`}>📰 Warta Isu ({ISSUES.length - answeredIssueIds.length})</button>
@@ -306,14 +307,12 @@ export default function Game() {
           <button onClick={() => setActiveTab('demographics')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'demographics' ? 'bg-blue-600' : 'text-slate-400'}`}>👥 Demografi</button>
         </nav>
 
-        {/* Tab 1: Ringkasan Otomatis Dinamis */}
         {activeTab === 'summary' && (
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 font-serif text-slate-200 leading-relaxed text-sm">
             {getNationSummaryNarrative().map((paragraph, idx) => <p key={idx}>{paragraph}</p>)}
           </div>
         )}
 
-        {/* Tab 2: Warta Isu */}
         {activeTab === 'issues' && (
           <main className="bg-[#f4ebd0] text-slate-900 border-2 border-[#d3c49d] rounded-xl p-5 font-serif">
             {currentIssue ? (
@@ -336,7 +335,6 @@ export default function Game() {
           </main>
         )}
 
-        {/* Tab 3 & 4: Charts */}
         {(activeTab === 'demographics' || activeTab === 'finance') && (
           <Charts activeTab={activeTab} stats={stats} />
         )}
