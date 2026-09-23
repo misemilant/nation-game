@@ -21,8 +21,8 @@ export default function Game() {
   const [currentIssue, setCurrentIssue] = useState(null);
   const [answeredIssueIds, setAnsweredIssueIds] = useState([]);
   const [history, setHistory] = useState([]);
+  const [gameOverReason, setGameOverReason] = useState(null);
 
-  // Fungsi untuk mengambil isu acak yang BELUM pernah dijawab
   const getRandomUnansweredIssue = (excludedIds) => {
     const availableIssues = ISSUES.filter((item) => !excludedIds.includes(item.id));
     if (availableIssues.length === 0) return null;
@@ -33,6 +33,21 @@ export default function Game() {
   useEffect(() => {
     setCurrentIssue(getRandomUnansweredIssue([]));
   }, []);
+
+  // Cek Kondisi Game Over setiap kali statistik berubah
+  useEffect(() => {
+    if (stats.economy <= 0) {
+      setGameOverReason("Ekonomi negara Anda hancur total! Inflasi ekstrem memicu kebangkrutan nasional.");
+    } else if (stats.civilLiberties <= 0) {
+      setGameOverReason("Kebebasan sipil hilang total! Pemberontakan massal meruntuhkan pemerintahan Anda.");
+    } else if (stats.military >= 100) {
+      setGameOverReason("Kekuatan militer terlalu dominan! Para jenderal melakukan kudeta dan mengambil alih kekuasaan.");
+    } else if (stats.education <= 0) {
+      setGameOverReason("Tingkat pendidikan menyentuh titik terendah! Krisis SDM membuat sistem negara tidak berfungsi.");
+    } else if (stats.environment <= 0) {
+      setGameOverReason("Bencana ekologis total terjadi! Kerusakan lingkungan membuat wilayah negara tidak layak huni.");
+    }
+  }, [stats]);
 
   const getGovernmentType = () => {
     if (stats.military > 75 && stats.civilLiberties < 35) return "Kediktatoran Militer";
@@ -63,13 +78,27 @@ export default function Game() {
       ...prev
     ]);
 
-    // Tandai isu ini sudah dijawab
     const updatedAnsweredIds = [...answeredIssueIds, currentIssue.id];
     setAnsweredIssueIds(updatedAnsweredIds);
 
-    // Ambil isu baru yang belum pernah dijawab
     const nextIssue = getRandomUnansweredIssue(updatedAnsweredIds);
     setCurrentIssue(nextIssue);
+  };
+
+  const handleRestart = () => {
+    setStats({
+      name: "Republik Nusantara",
+      motto: "Bhinneka Tunggal Ika",
+      economy: 50,
+      civilLiberties: 50,
+      military: 50,
+      education: 50,
+      environment: 50,
+    });
+    setAnsweredIssueIds([]);
+    setHistory([]);
+    setGameOverReason(null);
+    setCurrentIssue(getRandomUnansweredIssue([]));
   };
 
   return (
@@ -85,12 +114,14 @@ export default function Game() {
                   <h1 className="text-3xl font-bold text-amber-400">{stats.name}</h1>
                   <p className="text-sm italic text-slate-400 mt-1">"{stats.motto}"</p>
                 </div>
-                <button 
-                  onClick={() => setIsEditing(true)}
-                  className="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded border border-slate-600 transition"
-                >
-                  Edit Profil
-                </button>
+                {!gameOverReason && (
+                  <button 
+                    onClick={() => setIsEditing(true)}
+                    className="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded border border-slate-600 transition"
+                  >
+                    Edit Profil
+                  </button>
+                )}
               </div>
               <p className="text-sm text-slate-300 mt-3">
                 Klasifikasi Rezim: <span className="text-emerald-400 font-semibold">{getGovernmentType()}</span>
@@ -152,9 +183,23 @@ export default function Game() {
           </div>
         </header>
 
-        {/* Issue Card */}
+        {/* Tampilan Game Over ATAU Issue Card */}
         <main className="bg-slate-800 border border-slate-700 rounded-lg p-6 shadow-xl min-h-[250px] flex items-center justify-center">
-          {currentIssue ? (
+          {gameOverReason ? (
+            <div className="text-center py-6 space-y-4">
+              <span className="text-xs font-bold px-3 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30 uppercase tracking-widest">
+                GAME OVER - PEMERINTAHAN RUNTUH
+              </span>
+              <p className="text-lg font-medium text-slate-200 max-w-lg mx-auto">{gameOverReason}</p>
+              <p className="text-xs text-slate-400">Anda berhasil bertahan selama {answeredIssueIds.length} keputusan kebijakan.</p>
+              <button
+                onClick={handleRestart}
+                className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-2.5 rounded-lg text-sm transition shadow-lg mt-2"
+              >
+                Mulai Ulang Negara Baru
+              </button>
+            </div>
+          ) : currentIssue ? (
             <div className="w-full">
               <div className="flex justify-between items-center">
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20">
@@ -179,10 +224,16 @@ export default function Game() {
             </div>
           ) : (
             <div className="text-center py-6">
-              <h2 className="text-2xl font-bold text-amber-400 mb-2">Semua Isu Terkini Selesai!</h2>
+              <h2 className="text-2xl font-bold text-amber-400 mb-2">Semua Isu Selesai!</h2>
               <p className="text-slate-400 text-sm">
-                Kamu sudah menyelesaikan seluruh ({answeredIssueIds.length}) kebijakan negara yang tersedia saat ini.
+                Selamat! Anda berhasil memimpin negara dengan baik tanpa mengalami keruntuhan.
               </p>
+              <button
+                onClick={handleRestart}
+                className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-2.5 rounded-lg text-sm transition shadow-lg mt-4"
+              >
+                Mainkan Lagi
+              </button>
             </div>
           )}
         </main>
