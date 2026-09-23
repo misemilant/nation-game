@@ -52,17 +52,32 @@ export default function Game() {
 
   const getBarColor = (val) => val >= 100 ? "bg-emerald-500" : val < 50 ? "bg-rose-500" : "bg-amber-400";
 
+  // Penentuan Ideologi Dinamis
+  const getIdeology = () => {
+    if (stats.military > 70) return "Militerisme Nasionalis";
+    if (stats.environment > 60 && stats.civilLiberties > 60) return "Sosialis Hijau";
+    if (stats.economy > 70 && stats.civilLiberties > 50) return "Kapitalisme Pasar Bebas";
+    if (stats.education > 70 && stats.economy > 60) return "Teknokrasi Modern";
+    if (stats.civilLiberties < 35) return "Otoritarianisme Terpimpin";
+    return "Pancasila / Centrisme Pragmatis";
+  };
+
+  // Penentuan Agama Dinamis
+  const getReligion = () => {
+    if (stats.education > 75 && stats.civilLiberties > 75) return "Sekularisme Moderat";
+    if (stats.civilLiberties < 35 && stats.education < 40) return "Religius Konservatif";
+    return "Pluralisme Moderat";
+  };
+
   // Generator Narasi Ala NationStates
   const getNationSummaryNarrative = () => {
     const popFormatted = (stats.population / 1000000).toFixed(1);
     
-    // Paragraf 1: Pengenalan & Sifat Warga
     let p1 = `${stats.name} adalah negara yang berkembang dan aman, terkenal karena `;
     p1 += stats.military > 60 ? "wajib militer yang ketat dan pertahanan yang kuat. " : "kebebasan publik serta stabilitas wilayahnya. ";
     p1 += `Populasi sebanyak ${popFormatted} juta jiwa hidup dengan tingkat kesetaraan sosial yang `;
     p1 += stats.civilLiberties > 60 ? "sangat tinggi dan menjunjung hak asasi manusia. " : "terbatas dengan kontrol ketat dari pemerintah. ";
 
-    // Paragraf 2: Fokus Pemerintah & Pajak
     let p2 = `Pemerintah saat ini secara aktif menyeimbangkan alokasi anggaran antara `;
     let focuses = [];
     if (stats.education > 50) focuses.push("Pendidikan");
@@ -72,12 +87,10 @@ export default function Game() {
     p2 += focuses.length > 0 ? focuses.join(", ") : "kebutuhan dasar negara";
     p2 += `. Tingkat pajak rata-rata diperkirakan sebesar ${Math.round(10 + (stats.economy * 0.5))}% dari pendapatan.`;
 
-    // Paragraf 3: Ekonomi & Industri Utama
     let p3 = `Perekonomian ${stats.name} bernilai sekitar ${Math.round(stats.economy * 2.5)} miliar ${stats.currency} per tahun, `;
     p3 += stats.economy > 60 ? "dipimpin oleh sektor perdagangan bebas dan industri manufaktur yang maju. " : "dengan intervensi negara yang cukup dominan di berbagai sektor. ";
     p3 += `Pendapatan rata-rata warga terdistribusi secara merata.`;
 
-    // Paragraf 4: Keamanan & Hewan Nasional
     let p4 = `Tingkat kriminalitas tergolong `;
     p4 += stats.civilLiberties < 40 || stats.military > 60 ? "sangat rendah berkat pengawasan aparat yang ketat. " : "terkendali dengan pendekatan hukum yang progresif. ";
     p4 += `Hewan resmi khas negara ${stats.name} adalah ${stats.nationalAnimal}.`;
@@ -135,10 +148,13 @@ export default function Game() {
                 )}
               </div>
 
-              <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-800 text-xs">
+              {/* Grid Metadata Negara */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-4 pt-3 border-t border-slate-800 text-xs">
+                <div><span className="text-slate-400 block">Ideologi</span><span className="text-blue-400 font-semibold">{getIdeology()}</span></div>
+                <div><span className="text-slate-400 block">Agama</span><span className="text-purple-400 font-semibold">{getReligion()}</span></div>
                 <div><span className="text-slate-400 block">Mata Uang</span><span className="text-amber-400 font-semibold">{stats.currency}</span></div>
                 <div><span className="text-slate-400 block">Hewan Khas</span><span className="text-emerald-400 font-semibold">{stats.nationalAnimal}</span></div>
-                <div><span className="text-slate-400 block">Populasi</span><span className="text-sky-400 font-semibold">{stats.population.toLocaleString('id-ID')}</span></div>
+                <div className="col-span-2 md:col-span-1"><span className="text-slate-400 block">Populasi</span><span className="text-sky-400 font-semibold">{stats.population.toLocaleString('id-ID')}</span></div>
               </div>
             </div>
           ) : (
