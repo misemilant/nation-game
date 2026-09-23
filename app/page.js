@@ -40,7 +40,7 @@ export default function Game() {
   const [history, setHistory] = useState([]);
   const [gameOverReason, setGameOverReason] = useState(null);
 
-  // Check user session & load save data
+  // Cek Sesi User & Load Save Data dari Supabase
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -66,9 +66,9 @@ export default function Game() {
 
     if (data && !error) {
       setStats(data.stats);
-      setAnsweredIssueIds(data.answered_issue_ids);
-      setHistory(data.history);
-      setCurrentIssue(getRandomUnansweredIssue(data.answered_issue_ids));
+      setAnsweredIssueIds(data.answered_issue_ids || []);
+      setHistory(data.history || []);
+      setCurrentIssue(getRandomUnansweredIssue(data.answered_issue_ids || []));
     } else {
       setCurrentIssue(getRandomUnansweredIssue([]));
     }
@@ -131,8 +131,22 @@ export default function Game() {
     setAnsweredIssueIds(newAnsweredIds);
     setCurrentIssue(getRandomUnansweredIssue(newAnsweredIds));
 
-    // Auto save
+    // Otomatis Simpan Progress ke Supabase
     saveGameData(newStats, newAnsweredIds, newHistory);
+  };
+
+  const handleSaveProfile = (e) => {
+    e.preventDefault();
+    const updatedStats = {
+      ...stats,
+      name: tempName,
+      motto: tempMotto,
+      currency: tempCurrency,
+      nationalAnimal: tempAnimal,
+    };
+    setStats(updatedStats);
+    setIsEditing(false);
+    saveGameData(updatedStats, answeredIssueIds, history);
   };
 
   const getBarColor = (val) => val >= 100 ? "bg-emerald-500" : val < 50 ? "bg-rose-500" : "bg-amber-400";
@@ -152,22 +166,40 @@ export default function Game() {
     return "Pluralisme Moderat";
   };
 
+  // NARASI OTOMATIS BERUBAH DINAMIS + HEWAN KHAS (GAYA NATIONSTATES)
   const getNationSummaryNarrative = () => {
     const popFormatted = (stats.population / 1000000).toFixed(1);
-    let p1 = `${stats.name} adalah negara yang berkembang dan aman, terkenal karena `;
-    p1 += stats.military > 60 ? "wajib militer yang ketat dan pertahanan yang kuat. " : "kebebasan publik serta stabilitas wilayahnya. ";
-    p1 += `Populasi sebanyak ${popFormatted} juta jiwa hidup dengan tingkat kesetaraan sosial yang `;
-    p1 += stats.civilLiberties > 60 ? "sangat tinggi dan menjunjung hak asasi manusia. " : "terbatas dengan kontrol ketat dari pemerintah. ";
+    
+    let p1 = `${stats.name} adalah negara yang berkembang, terkenal karena `;
+    p1 += stats.military > 60 ? "kekuatan militer yang sangat dominan dan pengawasan ketat. " : "kebebasan publik serta stabilitas kawasan yang terjaga. ";
+    p1 += `Populasi sebanyak ${popFormatted} juta jiwa hidup dalam tatanan sosial dengan tingkat kebebasan sipil yang `;
+    p1 += stats.civilLiberties > 60 ? "sangat tinggi serta meletakkan hak asasi manusia sebagai prioritas utama. " : "cukup terbatas dan berada dalam pengawasan ketat pemerintah. ";
 
-    let p2 = `Pemerintah saat ini secara aktif menyeimbangkan alokasi anggaran antara Pendidikan, Kesehatan, Industri, dan Pertahanan Nasional.`;
-    return [p1, p2];
+    let p2 = `Pemerintah ${stats.name} secara aktif mengatur alokasi anggaran APBN. Prioritas pengeluaran negara ditujukan untuk sektor `;
+    let focuses = [];
+    if (stats.education > 50) focuses.push("Pendidikan");
+    if (stats.military > 50) focuses.push("Pertahanan Nasional");
+    if (stats.environment > 50) focuses.push("Pelestarian Lingkungan");
+    if (stats.economy > 50) focuses.push("Industri & Transportasi Publik");
+    p2 += focuses.length > 0 ? focuses.join(", ") : "kebutuhan dasar masyarakat";
+    p2 += `. Beban pajak rata-rata bagi warga negara diperkirakan mencapai ${Math.round(10 + (stats.economy * 0.3))}% dari total pendapatan bulanan.`;
+
+    let p3 = `Sektor perekonomian ${stats.name} memiliki PDB mencapai ribuan Triliun ${stats.currency}, dipimpin oleh `;
+    p3 += stats.economy > 60 ? "industri swasta dan perdagangan pasar bebas yang berkembang pesat. " : "dominasi sektor BUMN dan intervensi regulasi pemerintah yang kuat. ";
+    p3 += `Hewan resmi yang dilindungi dan menjadi simbol kebanggaan nasional negara ini adalah ${stats.nationalAnimal}.`;
+
+    let p4 = `Tingkat keamanan dan kriminalitas tergolong `;
+    p4 += stats.civilLiberties < 40 || stats.military > 60 ? "sangat terkendali berkat tindakan tegas aparat penegak hukum. " : "stabil dengan pendekatan sosial yang edukatif. ";
+    p4 += `Masyarakat menjunjung tinggi motto nasional "${stats.motto}".`;
+
+    return [p1, p2, p3, p4];
   };
 
   if (loading) {
     return <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center text-sm">Memuat Game...</div>;
   }
 
-  // TAMPILAN FORM AUTH (JIKA BELUM LOGIN)
+  // TAMPILAN FORM AUTH
   if (!session) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 font-sans">
@@ -202,7 +234,7 @@ export default function Game() {
     );
   }
 
-  // TAMPILAN GAMEPLAY (SETELAH LOGIN)
+  // TAMPILAN GAMEPLAY
   return (
     <div className="min-h-screen bg-slate-950 text-white p-4 font-sans">
       <div className="max-w-4xl mx-auto space-y-4">
@@ -215,16 +247,44 @@ export default function Game() {
 
         {/* Header Profil */}
         <header className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-          <div>
-            <h1 className="text-2xl font-bold">{stats.name}</h1>
-            <p className="text-xs italic text-slate-400">"{stats.motto}"</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4 pt-3 border-t border-slate-800 text-xs">
-              <div><span className="text-slate-400 block">Ideologi</span><span className="text-blue-400 font-semibold">{getIdeology()}</span></div>
-              <div><span className="text-slate-400 block">Agama</span><span className="text-purple-400 font-semibold">{getReligion()}</span></div>
-              <div><span className="text-slate-400 block">Mata Uang</span><span className="text-amber-400 font-semibold">{stats.currency}</span></div>
-              <div><span className="text-slate-400 block">Populasi</span><span className="text-sky-400 font-semibold">{stats.population.toLocaleString('id-ID')}</span></div>
+          {!isEditing ? (
+            <div>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h1 className="text-2xl font-bold">{stats.name}</h1>
+                  <p className="text-xs italic text-slate-400">"{stats.motto}"</p>
+                </div>
+                <button onClick={() => {
+                  setTempName(stats.name);
+                  setTempMotto(stats.motto);
+                  setTempCurrency(stats.currency);
+                  setTempAnimal(stats.nationalAnimal);
+                  setIsEditing(true);
+                }} className="text-xs bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded">Edit Profil</button>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-4 pt-3 border-t border-slate-800 text-xs">
+                <div><span className="text-slate-400 block">Ideologi</span><span className="text-blue-400 font-semibold">{getIdeology()}</span></div>
+                <div><span className="text-slate-400 block">Agama</span><span className="text-purple-400 font-semibold">{getReligion()}</span></div>
+                <div><span className="text-slate-400 block">Mata Uang</span><span className="text-amber-400 font-semibold">{stats.currency}</span></div>
+                <div><span className="text-slate-400 block">Hewan Khas</span><span className="text-emerald-400 font-semibold">{stats.nationalAnimal}</span></div>
+                <div className="col-span-2 md:col-span-1"><span className="text-slate-400 block">Populasi</span><span className="text-sky-400 font-semibold">{stats.population.toLocaleString('id-ID')}</span></div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <form onSubmit={handleSaveProfile} className="space-y-2 text-xs">
+              <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded p-1.5" placeholder="Nama Negara" />
+              <input type="text" value={tempMotto} onChange={(e) => setTempMotto(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded p-1.5" placeholder="Motto" />
+              <div className="flex gap-2">
+                <input type="text" value={tempCurrency} onChange={(e) => setTempCurrency(e.target.value)} className="w-1/2 bg-slate-950 border border-slate-700 rounded p-1.5" placeholder="Mata Uang" />
+                <input type="text" value={tempAnimal} onChange={(e) => setTempAnimal(e.target.value)} className="w-1/2 bg-slate-950 border border-slate-700 rounded p-1.5" placeholder="Hewan Khas" />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button type="submit" className="bg-blue-600 px-3 py-1 rounded">Simpan</button>
+                <button type="button" onClick={() => setIsEditing(false)} className="bg-slate-800 px-3 py-1 rounded">Batal</button>
+              </div>
+            </form>
+          )}
 
           <div className="grid grid-cols-5 gap-2 mt-4">
             {['economy', 'civilLiberties', 'military', 'education', 'environment'].map((item) => (
@@ -238,7 +298,7 @@ export default function Game() {
           </div>
         </header>
 
-        {/* Tab Navigation */}
+        {/* Navigation Tabs */}
         <nav className="flex gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800 text-xs overflow-x-auto">
           <button onClick={() => setActiveTab('summary')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'summary' ? 'bg-blue-600' : 'text-slate-400'}`}>📋 Ringkasan Negara</button>
           <button onClick={() => setActiveTab('issues')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'issues' ? 'bg-blue-600' : 'text-slate-400'}`}>📰 Warta Isu ({ISSUES.length - answeredIssueIds.length})</button>
@@ -246,13 +306,14 @@ export default function Game() {
           <button onClick={() => setActiveTab('demographics')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'demographics' ? 'bg-blue-600' : 'text-slate-400'}`}>👥 Demografi</button>
         </nav>
 
-        {/* Content Tabs */}
+        {/* Tab 1: Ringkasan Otomatis Dinamis */}
         {activeTab === 'summary' && (
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 font-serif text-slate-200 leading-relaxed text-sm">
             {getNationSummaryNarrative().map((paragraph, idx) => <p key={idx}>{paragraph}</p>)}
           </div>
         )}
 
+        {/* Tab 2: Warta Isu */}
         {activeTab === 'issues' && (
           <main className="bg-[#f4ebd0] text-slate-900 border-2 border-[#d3c49d] rounded-xl p-5 font-serif">
             {currentIssue ? (
@@ -275,6 +336,7 @@ export default function Game() {
           </main>
         )}
 
+        {/* Tab 3 & 4: Charts */}
         {(activeTab === 'demographics' || activeTab === 'finance') && (
           <Charts activeTab={activeTab} stats={stats} />
         )}
