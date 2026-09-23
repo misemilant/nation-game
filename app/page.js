@@ -52,12 +52,21 @@ export default function Game() {
 
   const getBarColor = (val) => val >= 100 ? "bg-emerald-500" : val < 50 ? "bg-rose-500" : "bg-amber-400";
 
-  const getGovernmentType = () => {
-    if (stats.military > 75 && stats.civilLiberties < 35) return "Kediktatoran Militer";
-    if (stats.economy > 75 && stats.environment < 35) return "Oligarki Industri";
-    if (stats.civilLiberties > 70 && stats.education > 70) return "Utopia Demokrasi Terpelajar";
-    if (stats.environment > 75) return "Republik Hijau Ekologis";
-    return "Masyarakat Berkembang";
+  // Penentuan Ideologi Dinamis
+  const getIdeology = () => {
+    if (stats.military > 70) return "Militerisme Nasionalis";
+    if (stats.environment > 60 && stats.civilLiberties > 60) return "Sosialis Hijau";
+    if (stats.economy > 70 && stats.civilLiberties > 50) return "Kapitalisme Pasar Bebas";
+    if (stats.education > 70 && stats.economy > 60) return "Teknokrasi Modern";
+    if (stats.civilLiberties < 35) return "Otoritarianisme Terpimpin";
+    return "Pancasila / Centrisme Pragmatis";
+  };
+
+  // Penentuan Agama Dinamis
+  const getReligion = () => {
+    if (stats.education > 75 && stats.civilLiberties > 75) return "Sekularisme Moderat (Pluralis)";
+    if (stats.civilLiberties < 35 && stats.education < 40) return "Religius Konservatif";
+    return "Pluralisme Moderat (Multi-Agama)";
   };
 
   const handleSaveProfile = (e) => {
@@ -110,10 +119,11 @@ export default function Game() {
                 )}
               </div>
 
-              <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-800 text-xs">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4 pt-3 border-t border-slate-800 text-xs">
+                <div><span className="text-slate-400 block">Ideologi</span><span className="text-blue-400 font-semibold">{getIdeology()}</span></div>
+                <div><span className="text-slate-400 block">Agama Dominan</span><span className="text-purple-400 font-semibold">{getReligion()}</span></div>
                 <div><span className="text-slate-400 block">Mata Uang</span><span className="text-amber-400 font-semibold">{stats.currency}</span></div>
                 <div><span className="text-slate-400 block">Hewan Khas</span><span className="text-emerald-400 font-semibold">{stats.nationalAnimal}</span></div>
-                <div><span className="text-slate-400 block">Populasi</span><span className="text-sky-400 font-semibold">{stats.population.toLocaleString('id-ID')}</span></div>
               </div>
             </div>
           ) : (
@@ -156,7 +166,16 @@ export default function Game() {
         {activeTab === 'summary' && (
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
             <h2 className="text-lg font-bold">Ringkasan Negara</h2>
-            <p className="text-sm text-slate-300">Klasifikasi Rezim: <span className="text-blue-400 font-semibold">{getGovernmentType()}</span></p>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="bg-slate-950 p-3 rounded border border-slate-800">
+                <span className="text-slate-400 block mb-1">Ideologi Dominan</span>
+                <p className="text-sm font-bold text-blue-400">{getIdeology()}</p>
+              </div>
+              <div className="bg-slate-950 p-3 rounded border border-slate-800">
+                <span className="text-slate-400 block mb-1">Kultur / Agama</span>
+                <p className="text-sm font-bold text-purple-400">{getReligion()}</p>
+              </div>
+            </div>
             <p className="text-xs text-slate-400">Total Kebijakan Dikeluarkan: {answeredIssueIds.length}</p>
           </div>
         )}
