@@ -33,7 +33,7 @@ export default function Charts({ activeTab, stats }) {
     { name: 'Kondisi Kronis', value: chronicHealth }
   ];
 
-  // ==================== KALKULASI EKONOMI SESUAI KONDISI INDONESIA ====================
+  // ==================== KALKULASI EKONOMI & APBN REALISTIS ====================
   // PDB Indonesia di kisaran Rp 21.000+ Triliun
   const totalGDP = Math.round(21000 * (stats.economy / 50)); 
 
@@ -57,14 +57,16 @@ export default function Charts({ activeTab, stats }) {
     { name: 'Kesejahteraan Rakyat', value: Math.max(8, Math.round(stats.civilLiberties * 0.7)) },
   ];
 
+  // Hitungan APBN dalam Triliun Rupiah (Serasi dengan PDB 21.000 Triliun)
+  const totalExpenditureTrillion = Math.round((totalGDP * 0.18) * (stats.economy / 50));
+  const apbnPctOfGdp = Math.round((totalExpenditureTrillion / totalGDP) * 100);
+
   const economyBreakdownData = [
     { name: 'Sektor Pemerintah', value: Math.max(15, Math.round(100 - stats.economy + 15)) },
     { name: 'BUMN / Industri Negara', value: Math.max(12, Math.round(stats.military * 0.35)) },
     { name: 'Industri Swasta & UMKM', value: Math.max(35, Math.round(stats.economy * 0.9)) },
     { name: 'Sektor Informal & Lainnya', value: Math.max(5, Math.round((100 - stats.civilLiberties) * 0.15)) },
   ];
-
-  const totalExpenditure = expenditureData.reduce((acc, curr) => acc + curr.value, 0);
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 text-white font-sans max-w-xl mx-auto space-y-8">
@@ -146,12 +148,13 @@ export default function Charts({ activeTab, stats }) {
         </>
       ) : (
         <>
+          {/* ALOKASI APBN TRILIUN */}
           <div className="text-center space-y-3">
             <h2 className="text-xl font-bold tracking-tight text-slate-100">
               Alokasi Anggaran APBN {stats.name}
             </h2>
             <p className="text-xs text-slate-400 font-medium">
-              <span className="font-bold text-slate-200">{totalExpenditure}.0 Miliar {stats.currency}</span> • {Math.min(85, Math.round(stats.economy * 0.85))}% dari PDB
+              <span className="font-bold text-slate-200">{totalExpenditureTrillion.toLocaleString('id-ID')} Triliun {stats.currency}</span> • {apbnPctOfGdp}% dari PDB
             </p>
 
             <div className="h-64 w-full my-2">
@@ -181,7 +184,7 @@ export default function Charts({ activeTab, stats }) {
 
           <hr className="border-slate-800" />
 
-          {/* EKONOMI & PENDAPATAN RIIL INDONESIA */}
+          {/* EKONOMI & PENDAPATAN */}
           <div className="text-center space-y-3">
             <h2 className="text-xl font-bold tracking-tight text-slate-100">
               Perekonomian & Pendapatan Warga {stats.name}
