@@ -104,6 +104,22 @@ export default function Game() {
     setSession(null);
   };
 
+  // FUNGSI HAPUS AKUN & DATA SAVES
+  const handleDeleteAccount = async () => {
+    const confirmDelete = confirm("Apakah Anda yakin ingin menghapus akun ini? Seluruh data simpanan negara Anda akan dihapus secara permanen!");
+    if (!confirmDelete) return;
+
+    setLoading(true);
+    // 1. Hapus simpanan data game di database
+    await supabase.from('nation_saves').delete().eq('user_id', session.user.id);
+
+    // 2. Keluar dari sesi
+    await supabase.auth.signOut();
+    setSession(null);
+    setLoading(false);
+    alert("Akun dan data simpanan negara Anda telah berhasil dihapus.");
+  };
+
   const getRandomUnansweredIssue = (excludedIds) => {
     const available = ISSUES.filter((item) => !excludedIds.includes(item.id));
     if (available.length === 0) return null;
@@ -241,9 +257,17 @@ export default function Game() {
     <div className="min-h-screen bg-slate-950 text-white p-4 font-sans">
       <div className="max-w-4xl mx-auto space-y-4">
         
+        {/* Navigation Bar & Tombol Hapus Akun */}
         <div className="flex justify-between items-center text-xs bg-slate-900 border border-slate-800 p-3 rounded-xl">
           <span className="text-slate-400">Akun: <strong className="text-white">{session.user.email}</strong></span>
-          <button onClick={handleLogout} className="text-xs bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white px-3 py-1 rounded border border-rose-500/30 transition">Keluar</button>
+          <div className="flex gap-2">
+            <button onClick={handleLogout} className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1 rounded border border-slate-700 transition">
+              Keluar
+            </button>
+            <button onClick={handleDeleteAccount} className="text-xs bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white px-3 py-1 rounded border border-rose-500/30 transition">
+              Hapus Akun
+            </button>
+          </div>
         </div>
 
         <header className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
@@ -298,7 +322,6 @@ export default function Game() {
           </div>
         </header>
 
-        {/* Tab Navigation */}
         <nav className="flex gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800 text-xs overflow-x-auto">
           <button onClick={() => setActiveTab('summary')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'summary' ? 'bg-blue-600' : 'text-slate-400'}`}>📋 Ringkasan Negara</button>
           <button onClick={() => setActiveTab('issues')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'issues' ? 'bg-blue-600' : 'text-slate-400'}`}>📰 Warta Isu ({ISSUES.length - answeredIssueIds.length})</button>
@@ -307,14 +330,12 @@ export default function Game() {
           <button onClick={() => setActiveTab('demographics')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'demographics' ? 'bg-blue-600' : 'text-slate-400'}`}>👥 Demografi</button>
         </nav>
 
-        {/* Tab Ringkasan */}
         {activeTab === 'summary' && (
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 font-serif text-slate-200 leading-relaxed text-sm">
             {getNationSummaryNarrative().map((paragraph, idx) => <p key={idx}>{paragraph}</p>)}
           </div>
         )}
 
-        {/* Tab Kebijakan Aktif (Gaya NationStates) */}
         {activeTab === 'policies' && (
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 text-slate-100 font-sans">
             <h2 className="text-xl font-bold tracking-tight text-slate-100 border-b border-slate-800 pb-3">
@@ -343,7 +364,6 @@ export default function Game() {
           </div>
         )}
 
-        {/* Tab Warta Isu */}
         {activeTab === 'issues' && (
           <main className="bg-[#f4ebd0] text-slate-900 border-2 border-[#d3c49d] rounded-xl p-5 font-serif">
             {currentIssue ? (
@@ -366,7 +386,6 @@ export default function Game() {
           </main>
         )}
 
-        {/* Tab Charts */}
         {(activeTab === 'demographics' || activeTab === 'finance') && (
           <Charts activeTab={activeTab} stats={stats} />
         )}
