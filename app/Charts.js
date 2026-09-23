@@ -78,10 +78,8 @@ export default function Charts({ activeTab, stats }) {
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 text-white font-sans max-w-5xl mx-auto">
       
       {activeTab === 'demographics' ? (
-        /* GRID 1 KOLOM DI MOBILE, 2 KOLOM BERSAMPINGAN DI DESKTOP */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           
-          {/* DIAGRAM 1: DEMOGRAFI PENDUDUK */}
           <div className="text-center space-y-3 bg-slate-950/40 p-4 rounded-xl border border-slate-800">
             <h2 className="text-lg font-bold text-slate-100">Demografi Penduduk</h2>
             <div className="text-xs text-slate-300 space-y-1">
@@ -114,7 +112,6 @@ export default function Charts({ activeTab, stats }) {
             </div>
           </div>
 
-          {/* DIAGRAM 2: KONDISI KESEHATAN */}
           <div className="text-center space-y-3 bg-slate-950/40 p-4 rounded-xl border border-slate-800">
             <h2 className="text-lg font-bold text-slate-100">Kondisi Kesehatan</h2>
             <p className="text-xs text-slate-400">
@@ -148,10 +145,8 @@ export default function Charts({ activeTab, stats }) {
 
         </div>
       ) : (
-        /* GRID 1 KOLOM DI MOBILE, 2 KOLOM BERSAMPINGAN DI DESKTOP */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           
-          {/* DIAGRAM 1: ALOKASI APBN */}
           <div className="text-center space-y-3 bg-slate-950/40 p-4 rounded-xl border border-slate-800">
             <h2 className="text-lg font-bold text-slate-100">Alokasi Anggaran APBN</h2>
             <p className="text-xs text-slate-400">
@@ -183,7 +178,6 @@ export default function Charts({ activeTab, stats }) {
             </div>
           </div>
 
-          {/* DIAGRAM 2: PEREKONOMIAN */}
           <div className="text-center space-y-3 bg-slate-950/40 p-4 rounded-xl border border-slate-800">
             <h2 className="text-lg font-bold text-slate-100">Perekonomian & Pendapatan</h2>
             <div className="text-xs text-slate-300 space-y-0.5">
@@ -204,14 +198,20 @@ export default function Charts({ activeTab, stats }) {
               </ResponsiveContainer>
             </div>
 
-            <div className="border border-slate-800 rounded-lg p-3 bg-slate-950 text-[11px] text-slate-300">
-              <div className="grid grid-cols-2 gap-1.5 text-left">
+            {/* KETERANGAN RINCIAN SEKTOR & PENDAPATAN 10% TERMISKIN/TERKAYA */}
+            <div className="border border-slate-800 rounded-lg p-3 bg-slate-950 text-[11px] text-slate-300 space-y-2">
+              <div className="grid grid-cols-2 gap-1.5 text-left pb-2 border-b border-slate-800/80">
                 {economyBreakdownData.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
                     <span className="truncate">{item.name}: {item.value}%</span>
                   </div>
                 ))}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px] text-left pt-0.5">
+                <p>10% Termiskin: <span className="text-rose-400 font-semibold">{stats.currency} {poorest10Monthly.toLocaleString('id-ID')}</span>/bln</p>
+                <p>10% Terkaya: <span className="text-emerald-400 font-semibold">{stats.currency} {richest10Monthly.toLocaleString('id-ID')}</span>/bln</p>
               </div>
             </div>
           </div>
