@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { ISSUES } from '@/lib/issues';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+
+// Import grafik secara dinamis tanpa SSR agar Vercel tidak error
+const Charts = dynamic(() => import('./Charts'), { ssr: false });
 
 export default function Game() {
   const [stats, setStats] = useState({
@@ -114,21 +117,18 @@ export default function Game() {
     setCurrentIssue(getRandomUnansweredIssue([]));
   };
 
-  // Data Diagram Usia
   const ageData = [
     { name: 'Anak (0-14 th)', value: 25 },
     { name: 'Usia Produktif (15-64 th)', value: 65 },
     { name: 'Lansia (65+ th)', value: 10 },
   ];
 
-  // Data Diagram Kesehatan
   const healthData = [
     { name: 'Sehat Optimal', value: Math.max(10, stats.environment + 10) },
     { name: 'Sakit Ringan/Keluarga', value: 30 },
     { name: 'Kondisi Kronis/Kritis', value: Math.max(5, 100 - stats.environment) },
   ];
 
-  // Data Alokasi Anggaran
   const budgetAllocationData = [
     { name: 'Militer & Pertahanan', value: stats.military },
     { name: 'Pendidikan & Kebudayaan', value: stats.education },
@@ -137,7 +137,6 @@ export default function Game() {
     { name: 'Layanan Sipil & Sosial', value: stats.civilLiberties },
   ];
 
-  // Data Kontribusi Pajak Penduduk
   const taxContributionData = [
     { name: '10% Penduduk Kaya', value: Math.min(80, Math.max(40, stats.economy + 20)) },
     { name: '80% Kelas Menengah', value: 30 },
@@ -169,7 +168,6 @@ export default function Game() {
                 )}
               </div>
 
-              {/* Detail Identitas Negara */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-800 text-xs">
                 <div>
                   <span className="text-slate-400 block">Mata Uang</span>
@@ -236,7 +234,7 @@ export default function Game() {
             </form>
           )}
 
-          {/* Grid Progress Bar Statistik */}
+          {/* Grid Progress Bar */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-6">
             <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
               <div className="flex justify-between items-center mb-2">
@@ -290,86 +288,14 @@ export default function Game() {
           </div>
         </header>
 
-        {/* Dashboard Diagram Statistik */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          {/* Demografi Populasi */}
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-            <h3 className="text-sm font-bold text-slate-200 mb-1">Struktur Demografi & Usia</h3>
-            <p className="text-xs text-slate-400 mb-4">Komposisi penduduk berdasarkan kelompok umur.</p>
-            <div className="h-48 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={ageData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#8884d8" label>
-                    {ageData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: '11px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Kondisi Kesehatan */}
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-            <h3 className="text-sm font-bold text-slate-200 mb-1">Status Kesehatan Populasi</h3>
-            <p className="text-xs text-slate-400 mb-4">Kondisi kesehatan umum warga masyarakat.</p>
-            <div className="h-48 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={healthData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#82ca9d" label>
-                    {healthData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: '11px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Alokasi Anggaran Sektor */}
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-            <h3 className="text-sm font-bold text-slate-200 mb-1">Alokasi Anggaran Sektor Negara</h3>
-            <p className="text-xs text-slate-400 mb-4">Distribusi pengeluaran kas APBN ke sektor kunci.</p>
-            <div className="h-48 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={budgetAllocationData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#ffc658" label>
-                    {budgetAllocationData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: '11px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Distribusi Pajak Penduduk */}
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-            <h3 className="text-sm font-bold text-slate-200 mb-1">Pendapatan Pajak Menurut Demografi</h3>
-            <p className="text-xs text-slate-400 mb-4">Proporsi kontribusi pajak 10% penduduk kaya vs miskin.</p>
-            <div className="h-48 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={taxContributionData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#ff7300" label>
-                    {taxContributionData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[(index + 3) % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: '11px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-        </section>
+        {/* Dynamic Client-Side Charts */}
+        <Charts 
+          ageData={ageData} 
+          healthData={healthData} 
+          budgetAllocationData={budgetAllocationData} 
+          taxContributionData={taxContributionData} 
+          COLORS={COLORS} 
+        />
 
         {/* Card Koran Isu */}
         <main className="bg-[#f4ebd0] text-slate-900 border-2 border-[#d3c49d] rounded-xl p-6 shadow-2xl min-h-[250px] flex items-center justify-center font-serif">
@@ -416,4 +342,34 @@ export default function Game() {
               </div>
             </div>
           ) : (
-            <div className="text-center py-
+            <div className="text-center py-6 font-sans">
+              <h2 className="text-2xl font-bold text-amber-900 mb-2">Semua Isu Selesai!</h2>
+              <button
+                onClick={handleRestart}
+                className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition shadow-md mt-4"
+              >
+                Mainkan Lagi
+              </button>
+            </div>
+          )}
+        </main>
+
+        {/* History */}
+        {history.length > 0 && (
+          <section className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl">
+            <h3 className="text-base font-bold mb-4 text-white">Riwayat Kebijakan Terbaru</h3>
+            <ul className="space-y-3 text-sm text-slate-400 divide-y divide-slate-800 max-h-60 overflow-y-auto">
+              {history.map((item, index) => (
+                <li key={index} className="pt-3 first:pt-0">
+                  <span className="font-semibold text-slate-200">{item.issueTitle}:</span> "{item.choice}"
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
