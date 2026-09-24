@@ -240,13 +240,18 @@ export default function Game() {
   if (!session) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 font-sans relative overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-center bg-no-repeat bg-contain opacity-10 pointer-events-none"
-          style={{ backgroundImage: "url('/ikn.png')" }}
-        />
+        {/* SKETSA SILUET ISTANA GARUDA IKN */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-15 pointer-events-none p-6">
+          <svg className="w-full max-w-2xl text-blue-400 fill-current" viewBox="0 0 500 250">
+            <path d="M250,20 L270,60 L320,50 L310,90 L370,80 L350,120 L420,110 L380,150 L450,150 L420,180 L480,190 L450,220 L50,220 L20,190 L80,180 L50,150 L120,150 L80,120 L150,110 L130,120 L180,80 L170,90 L220,50 L230,60 Z" />
+            <rect x="210" y="100" width="80" height="120" rx="5" />
+            <rect x="230" y="130" width="40" height="90" fill="#0f172a" />
+            <polygon points="250,40 220,90 280,90" />
+          </svg>
+        </div>
 
         <div className="bg-slate-900/90 backdrop-blur-md border border-slate-800 p-6 rounded-xl w-full max-w-md space-y-4 shadow-2xl relative z-10">
-          <h1 className="text-2xl font-bold text-center">Simulasi Negara</h1>
+          <h1 className="text-2xl font-bold text-center tracking-tight">Simulasi Negara</h1>
           <p className="text-xs text-slate-400 text-center">Masuk ke akun untuk melanjutkan simpanan negara Anda.</p>
 
           {authError && <div className="p-2 bg-rose-500/20 text-rose-400 text-xs border border-rose-500/30 rounded">{authError}</div>}
@@ -254,11 +259,11 @@ export default function Game() {
           <form onSubmit={handleAuth} className="space-y-3 text-xs">
             <div>
               <label className="block text-slate-400 mb-1">Email</label>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-white" />
+              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-blue-500" />
             </div>
             <div>
               <label className="block text-slate-400 mb-1">Password</label>
-              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-white" />
+              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-blue-500" />
             </div>
             <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold p-2.5 rounded text-xs transition">
               {authMode === 'login' ? 'Masuk Game' : 'Daftar Akun Baru'}
@@ -401,7 +406,7 @@ export default function Game() {
                 <h2 className="text-xl font-black text-amber-900 mb-2">{currentIssue.title}</h2>
                 <p className="text-xs leading-relaxed mb-4">{currentIssue.description}</p>
                 <div className="space-y-2 font-sans">
-                  {currentIssue.options.map((opt, idx) => (
+{currentIssue.options.map((opt, idx) => (
                     <button key={idx} onClick={() => handleChoice(opt.effects, opt.text)} className="w-full text-left p-3 rounded bg-[#e8dcbe] text-xs font-medium border border-[#c9b78c]">
                       {idx + 1}. {opt.text}
                     </button>
