@@ -1,4 +1,3 @@
-import LoginBg from "./components/LoginBg";
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -430,4 +429,3 @@ export default function Game() {
     </div>
   );
 }
-// update background ikn
