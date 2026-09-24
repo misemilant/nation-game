@@ -285,14 +285,13 @@ export default function Game() {
     );
   }
 
+  const welfareValue = Math.round(((stats.health || 50) + (stats.education || 50) + (stats.environment || 50) + (stats.infrastructure || 50)) / 4);
+  stats.welfare = welfareValue;
+
   const statLabels = [
-    { key: 'economy', label: 'Ekonomi' },
-    { key: 'civilLiberties', label: 'Kebebasan Sipil' },
-    { key: 'military', label: 'Militer' },
-    { key: 'education', label: 'Pendidikan' },
-    { key: 'environment', label: 'Lingkungan' },
-    { key: 'health', label: 'Kesehatan' },
-    { key: 'infrastructure', label: 'Infrastruktur' },
+    { key: "civilLiberties", label: "Hak Sipil" },
+    { key: "economy", label: "Ekonomi" },
+    { key: "welfare", label: "Kesejahteraan" },
   ];
 
   return (
@@ -351,7 +350,7 @@ export default function Game() {
             </form>
           )}
 
-          <div className="grid grid-cols-5 gap-2 mt-4">
+          <div className="grid grid-cols-3 gap-3 mt-4">
             {statLabels.map((item) => (
               <div key={item.key} className="bg-slate-950 p-2 rounded border border-slate-800">
                 <span className="text-[9px] uppercase block text-slate-400 truncate font-semibold">{item.label}</span>
