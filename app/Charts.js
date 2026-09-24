@@ -360,6 +360,55 @@ export default function Charts({ activeTab, stats }) {
           </div>
         </div>
 
+        {/* KARTU 4: STRUKTUR PEREKONOMIAN (NATIONSTATES STYLE) */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-6 text-center">
+          <h2 className="text-base sm:text-lg font-bold text-slate-100">Struktur Perekonomian Negara</h2>
+          <p className="text-xs text-slate-300 mt-1">
+            Total PDB (GDP): <strong className="text-amber-400">{totalGdpTrillion.toLocaleString("id-ID")} Triliun {stats.currency || "Rupiah"}</strong> ({((totalGdpTrillion * 1000000000) / totalPop / 12).toFixed(0)} /jiwa/bln)
+          </p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-center mt-4">
+            <div className="h-56 sm:h-60 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={[
+                    { name: "Pemerintah (Government)", value: Math.max(10, parseFloat((100 - Math.min(65, Math.max(20, 25 + (eco * 0.4))) - Math.min(40, Math.max(10, 35 - (eco * 0.2) + (infra * 0.15))) - Math.min(25, Math.max(2, 20 - (mil * 0.15) - (civil * 0.05)))).toFixed(1))), color: "#2563eb" },
+                    { name: "Industri Swasta (Private Industry)", value: Math.min(65, Math.max(20, 25 + (eco * 0.4))), color: "#dc2626" },
+                    { name: "Sektor BUMN (State-Owned)", value: Math.min(40, Math.max(10, 35 - (eco * 0.2) + (infra * 0.15))), color: "#d97706" },
+                    { name: "Pasar Gelap / Informal (Black Market)", value: Math.min(25, Math.max(2, 20 - (mil * 0.15) - (civil * 0.05))), color: "#334155" }
+                  ]} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75}>
+                    {[
+                      { color: "#2563eb" },
+                      { color: "#dc2626" },
+                      { color: "#d97706" },
+                      { color: "#334155" }
+                    ].map((entry, index) => (
+                      <Cell key={`eco-struct-cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => `${value}%`} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="p-3 bg-slate-950 border border-slate-800 rounded-lg">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-left">
+                {[
+                  { name: "Pemerintah", value: Math.max(10, parseFloat((100 - Math.min(65, Math.max(20, 25 + (eco * 0.4))) - Math.min(40, Math.max(10, 35 - (eco * 0.2) + (infra * 0.15))) - Math.min(25, Math.max(2, 20 - (mil * 0.15) - (civil * 0.05)))).toFixed(1))), color: "#2563eb" },
+                  { name: "Industri Swasta", value: Math.min(65, Math.max(20, 25 + (eco * 0.4))), color: "#dc2626" },
+                  { name: "Sektor BUMN", value: Math.min(40, Math.max(10, 35 - (eco * 0.2) + (infra * 0.15))), color: "#d97706" },
+                  { name: "Pasar Gelap / Informal", value: Math.min(25, Math.max(2, 20 - (mil * 0.15) - (civil * 0.05))), color: "#334155" }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2 bg-slate-900 p-2 rounded border border-slate-800/80">
+                    <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: item.color }}></span>
+                    <span className="text-slate-300 truncate">{item.name}: <strong className="text-white">{item.value}%</strong></span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     );
   }
