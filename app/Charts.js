@@ -189,7 +189,7 @@ export default function Charts({ activeTab, stats }) {
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-6 text-center">
           <h2 className="text-base sm:text-lg font-bold text-slate-100">Alokasi Pengeluaran APBN</h2>
           <p className="text-xs text-slate-300 mt-1">
-            Total APBN: <strong className="text-amber-400">{totalExpenditureTrillion} Triliun {stats.currency || 'Rupiah'}</strong> ({expenditureGdpPct}% dari PDB)
+            Total PDB (GDP): <strong className="text-emerald-400">{totalGdpTrillion.toLocaleString('id-ID')} Triliun {stats.currency || 'Rupiah'}</strong> • PDB/Jiwa: <strong className="text-sky-400">Rp {Math.round((totalGdpTrillion * 1000000000) / totalPop).toLocaleString('id-ID')}</strong><br/><span className="text-[11px] text-slate-400">Total APBN: <strong className="text-amber-400">{totalExpenditureTrillion} Triliun {stats.currency || 'Rupiah'}</strong> ({expenditureGdpPct}% dari PDB)</span>
           </p>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-center mt-4">
