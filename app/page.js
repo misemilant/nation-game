@@ -104,20 +104,46 @@ export default function Game() {
     setSession(null);
   };
 
-  // FUNGSI HAPUS AKUN & DATA SAVES
   const handleDeleteAccount = async () => {
-    const confirmDelete = confirm("Apakah Anda yakin ingin menghapus akun ini? Seluruh data simpanan negara Anda akan dihapus secara permanen!");
+    const confirmDelete = confirm(
+      "Apakah Anda yakin ingin menghapus negara ini? Seluruh kemajuan game Anda akan dihapus permanen dari database!"
+    );
     if (!confirmDelete) return;
 
     setLoading(true);
-    // 1. Hapus simpanan data game di database
-    await supabase.from('nation_saves').delete().eq('user_id', session.user.id);
 
-    // 2. Keluar dari sesi
-    await supabase.auth.signOut();
-    setSession(null);
-    setLoading(false);
-    alert("Akun dan data simpanan negara Anda telah berhasil dihapus.");
+    try {
+      const { error } = await supabase
+        .from('nation_saves')
+        .delete()
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
+
+      setAnsweredIssueIds([]);
+      setHistory([]);
+      setStats({
+        name: "Republik Nusantara",
+        motto: "Bhinneka Tunggal Ika",
+        currency: "Rupiah",
+        nationalAnimal: "Komodo",
+        population: 275000000,
+        economy: 50,
+        civilLiberties: 50,
+        military: 50,
+        education: 50,
+        environment: 50,
+      });
+
+      await supabase.auth.signOut();
+      setSession(null);
+
+      alert("Data simpanan negara Anda telah berhasil dihapus dari database!");
+    } catch (err) {
+      alert("Gagal menghapus data: " + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getRandomUnansweredIssue = (excludedIds) => {
@@ -213,8 +239,13 @@ export default function Game() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 font-sans">
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl w-full max-w-md space-y-4 shadow-2xl">
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 font-sans relative overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-center bg-no-repeat bg-contain opacity-10 pointer-events-none"
+          style={{ backgroundImage: "url('/ikn.png')" }}
+        />
+
+        <div className="bg-slate-900/90 backdrop-blur-md border border-slate-800 p-6 rounded-xl w-full max-w-md space-y-4 shadow-2xl relative z-10">
           <h1 className="text-2xl font-bold text-center">Simulasi Negara</h1>
           <p className="text-xs text-slate-400 text-center">Masuk ke akun untuk melanjutkan simpanan negara Anda.</p>
 
@@ -257,7 +288,6 @@ export default function Game() {
     <div className="min-h-screen bg-slate-950 text-white p-4 font-sans">
       <div className="max-w-4xl mx-auto space-y-4">
         
-        {/* Navigation Bar & Tombol Hapus Akun */}
         <div className="flex justify-between items-center text-xs bg-slate-900 border border-slate-800 p-3 rounded-xl">
           <span className="text-slate-400">Akun: <strong className="text-white">{session.user.email}</strong></span>
           <div className="flex gap-2">
@@ -394,4 +424,3 @@ export default function Game() {
     </div>
   );
 }
-
