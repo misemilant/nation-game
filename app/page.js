@@ -27,6 +27,7 @@ export default function Game() {
     education: 50,
     environment: 50,
     health: 50,
+    infrastructure: 50,
   });
 
   const [activeTab, setActiveTab] = useState('summary');
@@ -162,6 +163,7 @@ export default function Game() {
       education: Math.min(100, Math.max(0, stats.education + (effects.education || 0))),
       environment: Math.min(100, Math.max(0, stats.environment + (effects.environment || 0))),
       health: Math.min(100, Math.max(0, (stats.health || 50) + (effects.health || (effects.environment || 0) * 0.5))),
+      infrastructure: Math.min(100, Math.max(0, (stats.infrastructure || 50) + (effects.infrastructure || (effects.economy || 0) * 0.5))),
       population: Math.round(stats.population * (1 + ((effects.economy || 0) * 0.001))),
     };
 
@@ -290,6 +292,7 @@ export default function Game() {
     { key: 'education', label: 'Pendidikan' },
     { key: 'environment', label: 'Lingkungan' },
     { key: 'health', label: 'Kesehatan' },
+    { key: 'infrastructure', label: 'Infrastruktur' },
   ];
 
   return (
