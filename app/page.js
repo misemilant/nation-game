@@ -1,3 +1,4 @@
+import LoginBg from "./components/LoginBg";
 'use client';
 
 import { useState, useEffect } from 'react';
