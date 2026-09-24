@@ -351,7 +351,7 @@ export default function Game() {
         <div className="flex justify-between items-center text-xs bg-slate-900 border border-slate-800 p-3 rounded-xl">
           <span className="text-slate-400">Akun: <strong className="text-white">{session.user.email}</strong></span>
           <div className="flex gap-2">
-            <button onClick={handleLogout} className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1 rounded border border-slate-700 transition">
+            <button onClick={handleResetGame} className="text-xs bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1 rounded transition">🔄 Reset Simpanan</button><button onClick={handleLogout} className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1 rounded border border-slate-700 transition">
               Keluar
             </button>
             <button onClick={handleDeleteAccount} className="text-xs bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white px-3 py-1 rounded border border-rose-500/30 transition">
