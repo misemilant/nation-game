@@ -70,23 +70,47 @@ export default function Charts({ activeTab, stats }) {
   }
 
   if (activeTab === 'finance') {
-    // 1. Kalkulasi PDB & Pendapatan per Kapita Dinamis
+    // 1. PDB & Pendapatan per Kapita Dinamis
     const totalGdpBillion = Math.round(5000 + (eco * 350) + (infra * 150));
     const gdpPerCapita = Math.round((totalGdpBillion * 1000000000) / totalPop);
-    
-    // Kesenjangan Ekonomi (10% Termiskin vs 10% Terkaya) berbasis Hak Sipil & Ekonomi
+
+    // 2. Distribusi Pendapatan Rakyat (Miskin 10%, Menengah 80%, Terkaya 10%)
     const inequalityGap = Math.max(1.8, 4.5 - (civil * 0.03));
     const poorestIncome = Math.round(gdpPerCapita / (inequalityGap * 1.5));
     const richestIncome = Math.round(gdpPerCapita * inequalityGap);
+    const middleIncome = Math.round((gdpPerCapita * 0.9));
 
-    // 2. Proporsi Sektor Ekonomi NationStates (Dinamis dari Kebijakan)
-    // Sektor Swasta naik jika ekonomi naik
+    // Pie Chart Porsi Kue Pendapatan Rakyat (Persentase Penguasaan Ekonomi)
+    const richestShare = Math.min(65, Math.max(25, 45 + (eco * 0.15) - (civil * 0.1)));
+    const poorestShare = Math.max(2, Math.min(15, 5 + (civil * 0.08)));
+    const middleShare = parseFloat((100 - richestShare - poorestShare).toFixed(1));
+
+    const incomeDistributionData = [
+      { name: '10% Penduduk Terkaya', value: richestShare, color: '#eab308', avg: richestIncome },
+      { name: '80% Kelas Menengah', value: middleShare, color: '#3b82f6', avg: middleIncome },
+      { name: '10% Penduduk Termiskin', value: poorestShare, color: '#ef4444', avg: poorestIncome },
+    ];
+
+    // 3. Pendapatan Pajak Negara (Tax Revenue Breakdown)
+    const avgTaxRate = Math.min(50, Math.max(10, 15 + (eco * 0.2) + (infra * 0.1)));
+    const totalTaxRevenueBillion = Math.round((totalGdpBillion * avgTaxRate) / 100);
+
+    const incomeTaxPct = Math.min(45, Math.max(20, 30 + (eco * 0.1)));
+    const corporateTaxPct = Math.min(40, Math.max(15, 25 + (infra * 0.1)));
+    const vatTaxPct = Math.min(30, Math.max(10, 20 + (civil * 0.05)));
+    const otherTaxPct = parseFloat((100 - incomeTaxPct - corporateTaxPct - vatTaxPct).toFixed(1));
+
+    const taxRevenueData = [
+      { name: 'Pajak Penghasilan (PPh)', value: incomeTaxPct, color: '#10b981' },
+      { name: 'Pajak Korporasi / Badan', value: corporateTaxPct, color: '#8b5cf6' },
+      { name: 'Pajak Pertambahan Nilai (PPN)', value: vatTaxPct, color: '#f97316' },
+      { name: 'Bea Cukai & Pajak Lainnya', value: otherTaxPct, color: '#64748b' },
+    ];
+
+    // 4. Proporsi Sektor Perekonomian
     const privatePct = Math.min(65, Math.max(20, 25 + (eco * 0.4)));
-    // BUMN naik jika ekonomi diatur intervensi negara
     const stateOwnedPct = Math.min(40, Math.max(10, 35 - (eco * 0.2) + (infra * 0.15)));
-    // Pasar Gelap turun jika militer & hukum tinggi
     const blackMarketPct = Math.min(25, Math.max(2, 20 - (mil * 0.15) - (civil * 0.05)));
-    // Sektor Pemerintah mengisi sisanya
     const govPct = Math.max(10, parseFloat((100 - privatePct - stateOwnedPct - blackMarketPct).toFixed(1)));
 
     const ecoSectorData = [
@@ -96,53 +120,80 @@ export default function Charts({ activeTab, stats }) {
       { name: 'Pasar Gelap / Informal (Black Market)', value: blackMarketPct, color: '#334155' },
     ];
 
-    // 3. Alokasi Pengeluaran APBN Sektor
-    const totalPoints = edu + health + mil + env + infra + eco + civil + 150;
-    const rawBudgetData = [
-      { name: 'Pendidikan', points: edu, color: '#8b5cf6' },
-      { name: 'Kesehatan', points: health, color: '#06b6d4' },
-      { name: 'Pertahanan', points: mil, color: '#991b1b' },
-      { name: 'Infrastruktur & Transportasi', points: infra, color: '#0284c7' },
-      { name: 'Lingkungan', points: env, color: '#65a30d' },
-      { name: 'Industri & Pasar', points: eco, color: '#d97706' },
-      { name: 'Kesejahteraan Sosial', points: civil + health, color: '#bef264' },
-      { name: 'Administrasi & Hukum', points: 70, color: '#1e3a8a' },
-    ];
-
-    const budgetPieData = rawBudgetData.map(item => ({
-      name: item.name,
-      value: parseFloat(((item.points / totalPoints) * 100).toFixed(1)),
-      color: item.color
-    }));
-
     return (
       <div className="space-y-6 font-sans">
         
-        {/* KARTU STUKTUR EKONOMI PERSIS NATIONSTATES */}
+        {/* KARTU PENDAPATAN PAJAK NEGARA */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-center">
-          <h2 className="text-lg font-black text-slate-100">Perekonomian {stats.name || 'Negara'}</h2>
+          <h2 className="text-lg font-black text-slate-100">Pendapatan Pajak Negara (Tax Revenue)</h2>
           <p className="text-xs text-slate-400 mt-1">
-            PDB (GDP): <strong className="text-amber-400">{totalGdpBillion.toLocaleString('id-ID')} Miliar {stats.currency || 'Rupiah'}</strong>
+            Total Penerimaan Pajak: <strong className="text-emerald-400">{totalTaxRevenueBillion.toLocaleString('id-ID')} Miliar {stats.currency || 'Rupiah'}</strong>
           </p>
-          <p className="text-xs text-slate-300 font-medium">
-            {gdpPerCapita.toLocaleString('id-ID')} {stats.currency || 'Rupiah'} per jiwa
-          </p>
+          <p className="text-xs text-slate-300">Rata-rata Tarif Pajak Efektif: <strong className="text-amber-400">{avgTaxRate.toFixed(1)}%</strong> dari PDB</p>
 
-          <div className="grid grid-cols-2 gap-2 mt-3 p-3 bg-slate-950 rounded-lg border border-slate-800 text-[11px]">
-            <div>
-              <span className="text-slate-400 block">10% Penduduk Termiskin:</span>
-              <span className="text-rose-400 font-bold">{poorestIncome.toLocaleString('id-ID')} {stats.currency}/jiwa</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">10% Penduduk Terkaya:</span>
-              <span className="text-emerald-400 font-bold">{richestIncome.toLocaleString('id-ID')} {stats.currency}/jiwa</span>
-            </div>
-          </div>
-
-          <div className="h-60 w-full mt-4">
+          <div className="h-56 w-full mt-3">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={ecoSectorData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
+                <Pie data={taxRevenueData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75}>
+                  {taxRevenueData.map((entry, index) => (
+                    <Cell key={`tax-cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `${value}%`} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mt-3 text-[11px] text-left border-t border-slate-800 pt-3">
+            {taxRevenueData.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }}></span>
+                <span className="text-slate-300 truncate">{item.name}: <strong className="text-white">{item.value}%</strong></span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* KARTU DISTRIBUSI PENDAPATAN RAKYAT */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-center">
+          <h3 className="text-base font-bold text-slate-100">Distribusi Pendapatan & Kesenjangan Rakyat</h3>
+          <p className="text-xs text-slate-400 mt-0.5">Proporsi penguasaan kue ekonomi nasional berdasarkan kelompok ekonomi</p>
+
+          <div className="h-56 w-full mt-3">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={incomeDistributionData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75}>
+                  {incomeDistributionData.map((entry, index) => (
+                    <Cell key={`inc-cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `${value}%`} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="space-y-2 mt-3 text-[11px] text-left border-t border-slate-800 pt-3">
+            {incomeDistributionData.map((item, idx) => (
+              <div key={idx} className="flex justify-between items-center bg-slate-950 p-2 rounded border border-slate-800">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }}></span>
+                  <span className="text-slate-300 font-medium">{item.name} ({item.value}% Kue Ekonomi)</span>
+                </div>
+                <span className="text-amber-400 font-bold">{item.avg.toLocaleString('id-ID')} {stats.currency}/jiwa</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* KARTU STRUKTUR EKONOMI */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-center">
+          <h3 className="text-base font-bold text-slate-100">Sektor Perekonomian</h3>
+          <p className="text-xs text-slate-400 mt-0.5">PDB: <strong className="text-amber-400">{totalGdpBillion.toLocaleString('id-ID')} Miliar {stats.currency || 'Rupiah'}</strong> ({gdpPerCapita.toLocaleString('id-ID')} /jiwa)</p>
+
+          <div className="h-56 w-full mt-3">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={ecoSectorData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75}>
                   {ecoSectorData.map((entry, index) => (
                     <Cell key={`eco-cell-${index}`} fill={entry.color} />
                   ))}
@@ -154,34 +205,6 @@ export default function Charts({ activeTab, stats }) {
 
           <div className="grid grid-cols-2 gap-2 mt-3 text-[11px] text-left border-t border-slate-800 pt-3">
             {ecoSectorData.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }}></span>
-                <span className="text-slate-300 truncate">{item.name}: <strong className="text-white">{item.value}%</strong></span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* KARTU PENGELUARAN APBN MULTI SEKTOR */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-center">
-          <h3 className="text-base font-bold text-slate-100">Alokasi APBN per Sektor</h3>
-          <p className="text-xs text-slate-400 mt-0.5">Persentase distribusi anggaran negara berdasarkan regulasi aktif</p>
-
-          <div className="h-56 w-full mt-3">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={budgetPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75}>
-                  {budgetPieData.map((entry, index) => (
-                    <Cell key={`budget-cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => `${value}%`} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 mt-3 text-[11px] text-left border-t border-slate-800 pt-3">
-            {budgetPieData.map((item, idx) => (
               <div key={idx} className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }}></span>
                 <span className="text-slate-300 truncate">{item.name}: <strong className="text-white">{item.value}%</strong></span>
