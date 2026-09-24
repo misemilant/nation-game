@@ -1,14 +1,17 @@
 'use client';
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 export default function Charts({ activeTab, stats }) {
-  if (activeTab === 'demographics') {
-    const totalPop = stats.population || 275000000;
-    const health = stats.health || 50;
-    const edu = stats.education || 50;
+  const totalPop = stats.population || 275000000;
+  const health = stats.health || 50;
+  const eco = stats.economy || 50;
+  const edu = stats.education || 50;
+  const mil = stats.military || 50;
+  const env = stats.environment || 50;
+  const infra = stats.infrastructure || 50;
 
-    // Proporsi usia berubah berdasarkan tingkat kesehatan dan pendidikan
+  if (activeTab === 'demographics') {
     const productiveRatio = Math.min(75, Math.max(50, 60 + (health * 0.1)));
     const elderlyRatio = Math.min(20, Math.max(5, 10 + (health * 0.08)));
     const youthRatio = Math.max(10, 100 - productiveRatio - elderlyRatio);
@@ -58,6 +61,41 @@ export default function Charts({ activeTab, stats }) {
                 </Pie>
                 <Tooltip />
               </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeTab === 'finance') {
+    const budgetData = [
+      { name: 'Ekonomi', nilai: eco, fill: '#f59e0b' },
+      { name: 'Infrastruktur', nilai: infra, fill: '#06b6d4' },
+      { name: 'Pendidikan', nilai: edu, fill: '#3b82f6' },
+      { name: 'Kesehatan', nilai: health, fill: '#10b981' },
+      { name: 'Militer', nilai: mil, fill: '#ef4444' },
+      { name: 'Lingkungan', nilai: env, fill: '#84cc16' },
+    ];
+
+    return (
+      <div className="space-y-4 font-sans">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-center">
+          <h3 className="text-sm font-bold text-slate-300 mb-1">Alokasi & Efektivitas APBN Sektor Utama</h3>
+          <p className="text-xs text-slate-400 mb-3">Persentase kinerja anggaran berdasarkan kebijakan yang berlaku</p>
+          <div className="h-56 w-full text-xs">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={budgetData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                <XAxis dataKey="name" stroke="#94a3b8" tick={{ fontSize: 10 }} />
+                <YAxis stroke="#94a3b8" domain={[0, 100]} />
+                <Tooltip />
+                <Bar dataKey="nilai" radius={[4, 4, 0, 0]}>
+                  {budgetData.map((entry, index) => (
+                    <Cell key={`bar-${index}`} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
