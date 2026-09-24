@@ -120,6 +120,78 @@ export default function Charts({ activeTab, stats }) {
   }
 
   // TAB 3: APBN & KEUANGAN
+  
+  // TAB BARU: STRUKTUR PEREKONOMIAN KHAS NATIONSTATES
+  if (activeTab === "economy_structure") {
+    const totalGdpTrillion = Math.round(15000 + (eco * 150) + (infra * 100));
+    const gdpPerCapita = Math.round((totalGdpTrillion * 1000000000) / totalPop);
+
+    const inequalityRatio = Math.max(1.8, 4.5 - (civil * 0.03));
+    const poorestMonthly = Math.round((gdpPerCapita / 12) / (inequalityRatio * 1.5));
+    const richestMonthly = Math.round((gdpPerCapita / 12) * inequalityRatio);
+
+    // Proporsi Sektor Ekonomi (Dinamis sesuai Kebijakan)
+    const privatePct = Math.min(65, Math.max(20, 25 + (eco * 0.4)));
+    const stateOwnedPct = Math.min(40, Math.max(10, 35 - (eco * 0.2) + (infra * 0.15)));
+    const blackMarketPct = Math.min(25, Math.max(2, 20 - (mil * 0.15) - (civil * 0.05)));
+    const govPct = Math.max(10, parseFloat((100 - privatePct - stateOwnedPct - blackMarketPct).toFixed(1)));
+
+    const ecoSectorData = [
+      { name: "Sektor Pemerintah (Government)", value: govPct, color: "#2563eb" },
+      { name: "Industri Swasta (Private Industry)", value: privatePct, color: "#dc2626" },
+      { name: "Sektor BUMN (State-Owned)", value: stateOwnedPct, color: "#d97706" },
+      { name: "Pasar Gelap / Informal (Black Market)", value: blackMarketPct, color: "#334155" },
+    ];
+
+    return (
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-6 text-center text-white font-sans space-y-4">
+        <div>
+          <h2 className="text-lg font-bold text-slate-100">Perekonomian {stats.name || "Negara"}</h2>
+          <p className="text-xs text-slate-300 mt-1">
+            Total PDB (GDP): <strong className="text-amber-400">{totalGdpTrillion.toLocaleString("id-ID")} Triliun {stats.currency || "Rupiah"}</strong>
+          </p>
+          <p className="text-xs text-sky-400 font-medium">
+            Rp {gdpPerCapita.toLocaleString("id-ID")} per jiwa / tahun
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 p-3 bg-slate-950 rounded-lg border border-slate-800 text-[11px]">
+          <div>
+            <span className="text-slate-400 block">10% Penduduk Termiskin:</span>
+            <span className="text-rose-400 font-bold">Rp {(poorestMonthly / 1000000).toFixed(2)} Juta/bln</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block">10% Penduduk Terkaya:</span>
+            <span className="text-emerald-400 font-bold">Rp {(richestMonthly / 1000000).toFixed(2)} Juta/bln</span>
+          </div>
+        </div>
+
+        <div className="h-64 sm:h-72 w-full mt-2">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={ecoSectorData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90}>
+                {ecoSectorData.map((entry, index) => (
+                  <Cell key={`eco-struct-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value) => `${value}%`} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-left border-t border-slate-800 pt-3">
+          {ecoSectorData.map((item, idx) => (
+            <div key={idx} className="flex items-center gap-2 bg-slate-950 p-2.5 rounded border border-slate-800">
+              <span className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: item.color }}></span>
+              <span className="text-slate-300 truncate">{item.name}: <strong className="text-white">{item.value}%</strong></span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+
   if (activeTab === 'finance') {
     const totalGdpTrillion = Math.round(15000 + (eco * 150) + (infra * 100));
     const expenditureGdpPct = (18 + (eco * 0.15) + (infra * 0.08)).toFixed(1);

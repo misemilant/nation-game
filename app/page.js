@@ -477,7 +477,7 @@ export default function Game() {
           </main>
         )}
 
-        {(activeTab === 'demographics' || activeTab === 'finance' || activeTab === 'sectors') && (
+        {(activeTab === 'demographics' || activeTab === 'finance' || activeTab === 'sectors' || activeTab === 'economy_structure') && (
           <Charts activeTab={activeTab} stats={stats} />
         )}
 
