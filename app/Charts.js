@@ -1,6 +1,6 @@
 'use client';
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function Charts({ activeTab, stats }) {
   const totalPop = stats.population || 275000000;
@@ -10,6 +10,7 @@ export default function Charts({ activeTab, stats }) {
   const mil = stats.military || 50;
   const env = stats.environment || 50;
   const infra = stats.infrastructure || 50;
+  const civil = stats.civilLiberties || 50;
 
   if (activeTab === 'demographics') {
     const productiveRatio = Math.min(75, Math.max(50, 60 + (health * 0.1)));
@@ -69,34 +70,64 @@ export default function Charts({ activeTab, stats }) {
   }
 
   if (activeTab === 'finance') {
-    const budgetData = [
-      { name: 'Ekonomi', nilai: eco, fill: '#f59e0b' },
-      { name: 'Infrastruktur', nilai: infra, fill: '#06b6d4' },
-      { name: 'Pendidikan', nilai: edu, fill: '#3b82f6' },
-      { name: 'Kesehatan', nilai: health, fill: '#10b981' },
-      { name: 'Militer', nilai: mil, fill: '#ef4444' },
-      { name: 'Lingkungan', nilai: env, fill: '#84cc16' },
+    // Estimasi Total Anggaran Pengeluaran APBN berbasis PDB & Ekonomi
+    const gdpTrillion = Math.round(15000 + (eco * 250)); 
+    const expenditureRate = (15 + (eco * 0.3)).toFixed(1);
+    const totalExpenditure = ((gdpTrillion * expenditureRate) / 100).toFixed(1);
+
+    // Hitung bobot alokasi multi-sektor berbasis indikator statistik game
+    const totalPoints = edu + health + mil + env + infra + eco + civil + 150;
+
+    const rawBudgetData = [
+      { name: 'Pendidikan (Education)', points: edu, color: '#8b5cf6' },
+      { name: 'Kesehatan (Healthcare)', points: health, color: '#06b6d4' },
+      { name: 'Pertahanan (Defense)', points: mil, color: '#991b1b' },
+      { name: 'Transportasi & Infrastruktur', points: infra, color: '#0284c7' },
+      { name: 'Lingkungan (Environment)', points: env, color: '#65a30d' },
+      { name: 'Industri & Perdagangan', points: eco, color: '#d97706' },
+      { name: 'Hukum & Keamanan Publik', points: 100 - civil + 30, color: '#2563eb' },
+      { name: 'Kesejahteraan Sosial (Welfare)', points: civil + health, color: '#bef264' },
+      { name: 'Administrasi Pemerintahan', points: 40, color: '#1e3a8a' },
+      { name: 'Keagamaan & Kebudayaan', points: 30, color: '#db2777' },
     ];
+
+    const budgetPieData = rawBudgetData.map(item => {
+      const percentage = ((item.points / totalPoints) * 100).toFixed(1);
+      return {
+        name: item.name,
+        value: parseFloat(percentage),
+        color: item.color
+      };
+    });
 
     return (
       <div className="space-y-4 font-sans">
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-center">
-          <h3 className="text-sm font-bold text-slate-300 mb-1">Alokasi & Efektivitas APBN Sektor Utama</h3>
-          <p className="text-xs text-slate-400 mb-3">Persentase kinerja anggaran berdasarkan kebijakan yang berlaku</p>
-          <div className="h-56 w-full text-xs">
+          <h3 className="text-base font-bold text-slate-100">Anggaran Pengeluaran Negara (APBN)</h3>
+          <p className="text-xs text-slate-400 mt-1">
+            Total APBN: <strong className="text-amber-400">{totalExpenditure} Triliun {stats.currency || 'Rupiah'}</strong> ({expenditureRate}% dari PDB)
+          </p>
+
+          <div className="h-64 w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={budgetData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                <XAxis dataKey="name" stroke="#94a3b8" tick={{ fontSize: 10 }} />
-                <YAxis stroke="#94a3b8" domain={[0, 100]} />
-                <Tooltip />
-                <Bar dataKey="nilai" radius={[4, 4, 0, 0]}>
-                  {budgetData.map((entry, index) => (
-                    <Cell key={`bar-${index}`} fill={entry.fill} />
+              <PieChart>
+                <Pie data={budgetPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={85}>
+                  {budgetPieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
-                </Bar>
-              </BarChart>
+                </Pie>
+                <Tooltip formatter={(value) => `${value}%`} />
+              </PieChart>
             </ResponsiveContainer>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mt-4 text-[11px] text-left border-t border-slate-800 pt-3">
+            {budgetPieData.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }}></span>
+                <span className="text-slate-300 truncate">{item.name}: <strong className="text-white">{item.value}%</strong></span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
