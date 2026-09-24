@@ -106,6 +106,56 @@ export default function Game() {
     setSession(null);
   };
 
+  
+  const handleResetGame = async () => {
+    const confirmReset = confirm(
+      "Apakah Anda yakin ingin mereset negara ini? Seluruh kemajuan game akan diulang dari awal, tetapi akun Anda tetap ada."
+    );
+    if (!confirmReset) return;
+
+    setLoading(true);
+
+    try {
+      const defaultStats = {
+        name: "Republik Nusantara",
+        motto: "Bhinneka Tunggal Ika",
+        currency: "Rupiah",
+        nationalAnimal: "Komodo",
+        population: 275000000,
+        economy: 50,
+        civilLiberties: 50,
+        military: 50,
+        education: 50,
+        environment: 50,
+        health: 50,
+        infrastructure: 50,
+      };
+
+      const { error } = await supabase
+        .from("nation_saves")
+        .upsert({
+          user_id: session.user.id,
+          stats: defaultStats,
+          answered_issue_ids: [],
+          history: [],
+          updated_at: new Date(),
+        });
+
+      if (error) throw error;
+
+      setStats(defaultStats);
+      setAnsweredIssueIds([]);
+      setHistory([]);
+      setCurrentIssue(getRandomUnansweredIssue([]));
+
+      alert("Negara Anda berhasil direset ke kondisi awal!");
+    } catch (err) {
+      alert("Gagal mereset game: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteAccount = async () => {
     const confirmDelete = confirm(
       "Apakah Anda yakin ingin menghapus negara ini? Seluruh kemajuan game Anda akan dihapus permanen dari database!"
