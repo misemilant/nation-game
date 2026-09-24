@@ -368,6 +368,7 @@ export default function Game() {
           <button onClick={() => setActiveTab('policies')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'policies' ? 'bg-blue-600' : 'text-slate-400'}`}>📜 Kebijakan Aktif ({history.length})</button>
           <button onClick={() => setActiveTab('finance')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'finance' ? 'bg-blue-600' : 'text-slate-400'}`}>💰 APBN & Ekonomi</button>
           <button onClick={() => setActiveTab('demographics')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'demographics' ? 'bg-blue-600' : 'text-slate-400'}`}>👥 Demografi</button>
+          <button onClick={() => setActiveTab('sectors')} className={`px-3 py-1.5 rounded whitespace-nowrap ${activeTab === 'sectors' ? 'bg-blue-600' : 'text-slate-400'}`}>📊 Sektor Bernegara</button>
         </nav>
 
         {activeTab === 'summary' && (
@@ -426,7 +427,7 @@ export default function Game() {
           </main>
         )}
 
-        {(activeTab === 'demographics' || activeTab === 'finance') && (
+        {(activeTab === 'demographics' || activeTab === 'finance' || activeTab === 'sectors') && (
           <Charts activeTab={activeTab} stats={stats} />
         )}
 

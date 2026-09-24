@@ -14,6 +14,7 @@ export default function Charts({ activeTab, stats }) {
   const infra = stats.infrastructure || 50;
   const civil = stats.civilLiberties || 50;
 
+  // TAB 1: DEMOGRAFI & KESEHATAN
   if (activeTab === 'demographics') {
     const productiveRatio = Math.min(75, Math.max(50, 60 + (health * 0.1)));
     const elderlyRatio = Math.min(20, Math.max(5, 10 + (health * 0.08)));
@@ -71,13 +72,59 @@ export default function Charts({ activeTab, stats }) {
     );
   }
 
+  // TAB 2: SEKTOR BERNEGARA (11 SEKTOR LENGKAP)
+  if (activeTab === 'sectors') {
+    const lawOrder = Math.min(100, Math.max(10, Math.round((100 - civil) * 0.4 + mil * 0.6)));
+    const welfare = Math.min(100, Math.max(10, Math.round((health + edu + env) / 3)));
+    const culture = Math.min(100, Math.max(10, Math.round((civil + edu) / 2)));
+    const agriculture = Math.min(100, Math.max(10, Math.round((env * 0.6 + infra * 0.4))));
+    const housing = Math.min(100, Math.max(10, Math.round((infra * 0.6 + eco * 0.4))));
+
+    const sectorList = [
+      { label: 'Sektor Pendidikan', val: edu, color: 'bg-purple-500', desc: 'Mutu sekolah, riset, dan literasi masyarakat' },
+      { label: 'Hukum & Ketertiban', val: lawOrder, color: 'bg-sky-500', desc: 'Penegakan hukum, stabilitas, dan keamanan siber' },
+      { label: 'Pertahanan & Militer', val: mil, color: 'bg-rose-600', desc: 'Kesiapsiagaan alutsista dan ketahanan wilayah' },
+      { label: 'Industri & Perdagangan', val: eco, color: 'bg-amber-500', desc: 'Pertumbuhan pasar swasta, BUMN, dan ekspor' },
+      { label: 'Transportasi Publik', val: infra, color: 'bg-yellow-400', desc: 'Konektivitas kereta, bus, jalan, dan pelabuhan' },
+      { label: 'Layanan Kesehatan', val: health, color: 'bg-emerald-500', desc: 'Fasilitas medis, BPJS, dan penanganan gizi' },
+      { name: 'Agama & Budaya', val: culture, color: 'bg-pink-500', desc: 'Pluralisme, norma sosial, dan seni kebudayaan' },
+      { label: 'Lingkungan Hidup', val: env, color: 'bg-lime-500', desc: 'Konservasi hutan, emisi, dan pencegahan bencana' },
+      { label: 'Kesejahteraan Sosial', val: welfare, color: 'bg-teal-400', desc: 'Perlindungan sosial dan bantuan masyarakat' },
+      { label: 'Pertanian & Perikanan', val: agriculture, color: 'bg-green-600', desc: 'Ketahanan pangan nasional dan swasembada' },
+      { label: 'Perumahan Layak', val: housing, color: 'bg-indigo-500', desc: 'Akses hunian terjangkau bagi warga negara' },
+    ];
+
+    return (
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-6 text-white font-sans space-y-4">
+        <div>
+          <h2 className="text-base sm:text-lg font-bold text-slate-100">📊 Indikator 11 Sektor Pembangunan Bernegara</h2>
+          <p className="text-xs text-slate-400 mt-0.5">Persentase kualitas dan efektivitas sektor nasional berdasarkan regulasi aktif</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+          {sectorList.map((sec, idx) => (
+            <div key={idx} className="bg-slate-950 border border-slate-800/80 p-3 rounded-lg space-y-1.5">
+              <div className="flex justify-between items-center text-xs">
+                <strong className="text-slate-200">{sec.label || sec.name}</strong>
+                <span className="font-bold text-amber-400">{sec.val}%</span>
+              </div>
+              <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div className={`h-2 rounded-full transition-all duration-500 ${sec.color}`} style={{ width: `${sec.val}%` }}></div>
+              </div>
+              <p className="text-[10px] text-slate-400 italic">{sec.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // TAB 3: APBN & KEUANGAN
   if (activeTab === 'finance') {
-    // 1. SKALA PDB REALISTIS (15.000 - 30.000 Triliun Rupiah)
     const totalGdpTrillion = Math.round(15000 + (eco * 150) + (infra * 100));
     const expenditureGdpPct = (18 + (eco * 0.15) + (infra * 0.08)).toFixed(1);
     const totalExpenditureTrillion = ((totalGdpTrillion * expenditureGdpPct) / 100).toFixed(1);
 
-    // ALOKASI APBN SEKTOR BERNEGARA
     const totalExpenditurePoints = edu + health + mil + env + infra + eco + civil + 200;
     const rawExpenditureData = [
       { name: 'Administrasi Pemerintahan', points: 40, color: '#2563eb' },
@@ -100,7 +147,6 @@ export default function Charts({ activeTab, stats }) {
       color: item.color
     }));
 
-    // 2. PENDAPATAN PAJAK NEGARA
     const taxGdpPct = (11 + (eco * 0.12) + (civil * 0.03)).toFixed(1);
     const totalTaxRevenueTrillion = ((totalGdpTrillion * taxGdpPct) / 100).toFixed(1);
 
@@ -119,18 +165,13 @@ export default function Charts({ activeTab, stats }) {
       color: item.color
     }));
 
-    // 3. RUMUS PENDAPATAN BULANAN PENDUDUK REALISTIS (DALAM JUTA RUPIAH)
-    // Base pendapatan bulanan rata-rata nasional: Rp 3.5 Juta - Rp 8.0 Juta
     const baseMonthlyAvg = 3.5 + (eco * 0.04) + (infra * 0.02);
-    
-    // Faktor kesenjangan (Isu Hak Sipil & Kesejahteraan)
     const gapRatio = Math.max(2.5, 6.0 - (civil * 0.04));
 
     const poorMonthlyJuta = Math.max(1.2, baseMonthlyAvg / 2.2).toFixed(2);
     const middleMonthlyJuta = (baseMonthlyAvg * 1.1).toFixed(2);
     const richMonthlyJuta = (baseMonthlyAvg * gapRatio).toFixed(2);
 
-    // Porsi Penguasaan Ekonomi (Total = 100%)
     const richShare = Math.min(60, Math.max(30, 48 + (eco * 0.12) - (civil * 0.1)));
     const poorShare = Math.max(3, Math.min(12, 4 + (civil * 0.06)));
     const middleShare = parseFloat((100 - richShare - poorShare).toFixed(1));
@@ -212,7 +253,7 @@ export default function Charts({ activeTab, stats }) {
           </div>
         </div>
 
-        {/* KARTU 3: PENDAPATAN BULANAN PENDUDUK REALISTIS */}
+        {/* KARTU 3: PENDAPATAN BULANAN PENDUDUK */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-6 text-center">
           <h2 className="text-base sm:text-lg font-bold text-slate-100">Pendapatan Bulanan Penduduk</h2>
           <p className="text-xs text-slate-300 mt-1">
