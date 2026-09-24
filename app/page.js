@@ -26,6 +26,7 @@ export default function Game() {
     military: 50,
     education: 50,
     environment: 50,
+    health: 50,
   });
 
   const [activeTab, setActiveTab] = useState('summary');
@@ -160,6 +161,7 @@ export default function Game() {
       military: Math.min(100, Math.max(0, stats.military + (effects.military || 0))),
       education: Math.min(100, Math.max(0, stats.education + (effects.education || 0))),
       environment: Math.min(100, Math.max(0, stats.environment + (effects.environment || 0))),
+      health: Math.min(100, Math.max(0, (stats.health || 50) + (effects.health || (effects.environment || 0) * 0.5))),
       population: Math.round(stats.population * (1 + ((effects.economy || 0) * 0.001))),
     };
 
@@ -287,6 +289,7 @@ export default function Game() {
     { key: 'military', label: 'Militer' },
     { key: 'education', label: 'Pendidikan' },
     { key: 'environment', label: 'Lingkungan' },
+    { key: 'health', label: 'Kesehatan' },
   ];
 
   return (
