@@ -1,4 +1,3 @@
-import LoginBg from "./LoginBg";
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -277,7 +276,8 @@ export default function Game() {
               {authMode === 'login' ? 'Daftar Sekarang' : 'Login'}
             </button>
           </div>
-        </div></div></div>
+        </div>
+      </div>
     );
   }
 
