@@ -72,12 +72,12 @@ export default function Charts({ activeTab, stats }) {
   }
 
   if (activeTab === 'finance') {
-    // Perhitungan Ekonomi & PDB
-    const totalGdpTrillion = Math.round(12000 + (eco * 350) + (infra * 150));
-    const expenditureGdpPct = (20 + (eco * 0.25) + (infra * 0.1)).toFixed(1);
+    // 1. SKALA PDB REALISTIS (15.000 - 30.000 Triliun Rupiah)
+    const totalGdpTrillion = Math.round(15000 + (eco * 150) + (infra * 100));
+    const expenditureGdpPct = (18 + (eco * 0.15) + (infra * 0.08)).toFixed(1);
     const totalExpenditureTrillion = ((totalGdpTrillion * expenditureGdpPct) / 100).toFixed(1);
 
-    // 1. ALOKASI APBN SEKTOR BERNEGARA (12 Sektor - Bahasa Indonesia)
+    // ALOKASI APBN SEKTOR BERNEGARA
     const totalExpenditurePoints = edu + health + mil + env + infra + eco + civil + 200;
     const rawExpenditureData = [
       { name: 'Administrasi Pemerintahan', points: 40, color: '#2563eb' },
@@ -100,8 +100,8 @@ export default function Charts({ activeTab, stats }) {
       color: item.color
     }));
 
-    // 2. PENDAPATAN PAJAK NEGARA (6 Sektor Pajak - Bahasa Indonesia)
-    const taxGdpPct = (12 + (eco * 0.2) + (civil * 0.05)).toFixed(1);
+    // 2. PENDAPATAN PAJAK NEGARA
+    const taxGdpPct = (11 + (eco * 0.12) + (civil * 0.03)).toFixed(1);
     const totalTaxRevenueTrillion = ((totalGdpTrillion * taxGdpPct) / 100).toFixed(1);
 
     const rawTaxData = [
@@ -119,18 +119,20 @@ export default function Charts({ activeTab, stats }) {
       color: item.color
     }));
 
-    // 3. PENDAPATAN BULANAN PENDUDUK (Dinamis dalam Juta Rupiah/Bulan)
-    const monthlyAvgIncomeRupiah = Math.round(((totalGdpTrillion * 1000000000) / totalPop) / 12);
-    const inequalityFactor = Math.max(1.8, 4.5 - (civil * 0.03));
+    // 3. RUMUS PENDAPATAN BULANAN PENDUDUK REALISTIS (DALAM JUTA RUPIAH)
+    // Base pendapatan bulanan rata-rata nasional: Rp 3.5 Juta - Rp 8.0 Juta
+    const baseMonthlyAvg = 3.5 + (eco * 0.04) + (infra * 0.02);
     
-    // Konversi ke satuan Juta Rupiah
-    const poorMonthlyJuta = ((monthlyAvgIncomeRupiah / (inequalityFactor * 1.6)) / 1000000).toFixed(2);
-    const middleMonthlyJuta = ((monthlyAvgIncomeRupiah * 0.85) / 1000000).toFixed(2);
-    const richMonthlyJuta = ((monthlyAvgIncomeRupiah * inequalityFactor) / 1000000).toFixed(2);
-    const avgMonthlyJuta = (monthlyAvgIncomeRupiah / 1000000).toFixed(2);
+    // Faktor kesenjangan (Isu Hak Sipil & Kesejahteraan)
+    const gapRatio = Math.max(2.5, 6.0 - (civil * 0.04));
 
-    const richShare = Math.min(65, Math.max(25, 45 + (eco * 0.15) - (civil * 0.1)));
-    const poorShare = Math.max(2, Math.min(15, 5 + (civil * 0.08)));
+    const poorMonthlyJuta = Math.max(1.2, baseMonthlyAvg / 2.2).toFixed(2);
+    const middleMonthlyJuta = (baseMonthlyAvg * 1.1).toFixed(2);
+    const richMonthlyJuta = (baseMonthlyAvg * gapRatio).toFixed(2);
+
+    // Porsi Penguasaan Ekonomi (Total = 100%)
+    const richShare = Math.min(60, Math.max(30, 48 + (eco * 0.12) - (civil * 0.1)));
+    const poorShare = Math.max(3, Math.min(12, 4 + (civil * 0.06)));
     const middleShare = parseFloat((100 - richShare - poorShare).toFixed(1));
 
     const incomeDistributionData = [
@@ -142,7 +144,7 @@ export default function Charts({ activeTab, stats }) {
     return (
       <div className="space-y-6 font-sans text-white">
         
-        {/* KARTU 1: ALOKASI APBN (Grid 1 Kolom di HP, 2 Kolom di Desktop) */}
+        {/* KARTU 1: ALOKASI APBN */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-6 text-center">
           <h2 className="text-base sm:text-lg font-bold text-slate-100">Alokasi Pengeluaran APBN</h2>
           <p className="text-xs text-slate-300 mt-1">
@@ -210,11 +212,11 @@ export default function Charts({ activeTab, stats }) {
           </div>
         </div>
 
-        {/* KARTU 3: PENDAPATAN BULANAN PENDUDUK (JUTA RUPIAH/BULAN) */}
+        {/* KARTU 3: PENDAPATAN BULANAN PENDUDUK REALISTIS */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-6 text-center">
           <h2 className="text-base sm:text-lg font-bold text-slate-100">Pendapatan Bulanan Penduduk</h2>
           <p className="text-xs text-slate-300 mt-1">
-            Rata-rata Nasional: <strong className="text-sky-400">{avgMonthlyJuta} Juta {stats.currency || 'Rupiah'}/bulan</strong>
+            Rata-rata Nasional: <strong className="text-sky-400">{baseMonthlyAvg.toFixed(2)} Juta {stats.currency || 'Rupiah'}/bulan</strong>
           </p>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-center mt-4">
@@ -238,7 +240,7 @@ export default function Charts({ activeTab, stats }) {
                     <span className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: item.color }}></span>
                     <span className="text-slate-200 font-semibold">{item.name} ({item.value}% Porsi)</span>
                   </div>
-                  <span className="text-amber-400 font-bold text-xs">{item.juta} Juta/bln</span>
+                  <span className="text-amber-400 font-bold text-xs">Rp {item.juta} Juta/bln</span>
                 </div>
               ))}
             </div>
