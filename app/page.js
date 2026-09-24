@@ -348,7 +348,7 @@ export default function Game() {
     <div className="min-h-screen bg-slate-950 text-white p-4 font-sans">
       <div className="max-w-4xl mx-auto space-y-4">
         
-        <div className="flex justify-between items-center text-xs bg-slate-900 border border-slate-800 p-3 rounded-xl">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs bg-slate-900 border border-slate-800 p-3 rounded-xl">
           <span className="text-slate-400">Akun: <strong className="text-white">{session.user.email}</strong></span>
           <div className="flex gap-2">
             <button onClick={handleResetGame} className="text-xs bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1 rounded transition">🔄 Reset Simpanan</button><button onClick={handleLogout} className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1 rounded border border-slate-700 transition">
