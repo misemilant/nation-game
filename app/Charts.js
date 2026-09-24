@@ -70,50 +70,81 @@ export default function Charts({ activeTab, stats }) {
   }
 
   if (activeTab === 'finance') {
-    // Estimasi Total Anggaran Pengeluaran APBN berbasis PDB & Ekonomi
-    const gdpTrillion = Math.round(15000 + (eco * 250)); 
-    const expenditureRate = (15 + (eco * 0.3)).toFixed(1);
-    const totalExpenditure = ((gdpTrillion * expenditureRate) / 100).toFixed(1);
+    // 1. Kalkulasi PDB & Pendapatan per Kapita Dinamis
+    const totalGdpBillion = Math.round(5000 + (eco * 350) + (infra * 150));
+    const gdpPerCapita = Math.round((totalGdpBillion * 1000000000) / totalPop);
+    
+    // Kesenjangan Ekonomi (10% Termiskin vs 10% Terkaya) berbasis Hak Sipil & Ekonomi
+    const inequalityGap = Math.max(1.8, 4.5 - (civil * 0.03));
+    const poorestIncome = Math.round(gdpPerCapita / (inequalityGap * 1.5));
+    const richestIncome = Math.round(gdpPerCapita * inequalityGap);
 
-    // Hitung bobot alokasi multi-sektor berbasis indikator statistik game
-    const totalPoints = edu + health + mil + env + infra + eco + civil + 150;
+    // 2. Proporsi Sektor Ekonomi NationStates (Dinamis dari Kebijakan)
+    // Sektor Swasta naik jika ekonomi naik
+    const privatePct = Math.min(65, Math.max(20, 25 + (eco * 0.4)));
+    // BUMN naik jika ekonomi diatur intervensi negara
+    const stateOwnedPct = Math.min(40, Math.max(10, 35 - (eco * 0.2) + (infra * 0.15)));
+    // Pasar Gelap turun jika militer & hukum tinggi
+    const blackMarketPct = Math.min(25, Math.max(2, 20 - (mil * 0.15) - (civil * 0.05)));
+    // Sektor Pemerintah mengisi sisanya
+    const govPct = Math.max(10, parseFloat((100 - privatePct - stateOwnedPct - blackMarketPct).toFixed(1)));
 
-    const rawBudgetData = [
-      { name: 'Pendidikan (Education)', points: edu, color: '#8b5cf6' },
-      { name: 'Kesehatan (Healthcare)', points: health, color: '#06b6d4' },
-      { name: 'Pertahanan (Defense)', points: mil, color: '#991b1b' },
-      { name: 'Transportasi & Infrastruktur', points: infra, color: '#0284c7' },
-      { name: 'Lingkungan (Environment)', points: env, color: '#65a30d' },
-      { name: 'Industri & Perdagangan', points: eco, color: '#d97706' },
-      { name: 'Hukum & Keamanan Publik', points: 100 - civil + 30, color: '#2563eb' },
-      { name: 'Kesejahteraan Sosial (Welfare)', points: civil + health, color: '#bef264' },
-      { name: 'Administrasi Pemerintahan', points: 40, color: '#1e3a8a' },
-      { name: 'Keagamaan & Kebudayaan', points: 30, color: '#db2777' },
+    const ecoSectorData = [
+      { name: 'Pemerintah (Government)', value: govPct, color: '#2563eb' },
+      { name: 'Industri Swasta (Private Industry)', value: privatePct, color: '#dc2626' },
+      { name: 'Sektor BUMN (State-Owned)', value: stateOwnedPct, color: '#d97706' },
+      { name: 'Pasar Gelap / Informal (Black Market)', value: blackMarketPct, color: '#334155' },
     ];
 
-    const budgetPieData = rawBudgetData.map(item => {
-      const percentage = ((item.points / totalPoints) * 100).toFixed(1);
-      return {
-        name: item.name,
-        value: parseFloat(percentage),
-        color: item.color
-      };
-    });
+    // 3. Alokasi Pengeluaran APBN Sektor
+    const totalPoints = edu + health + mil + env + infra + eco + civil + 150;
+    const rawBudgetData = [
+      { name: 'Pendidikan', points: edu, color: '#8b5cf6' },
+      { name: 'Kesehatan', points: health, color: '#06b6d4' },
+      { name: 'Pertahanan', points: mil, color: '#991b1b' },
+      { name: 'Infrastruktur & Transportasi', points: infra, color: '#0284c7' },
+      { name: 'Lingkungan', points: env, color: '#65a30d' },
+      { name: 'Industri & Pasar', points: eco, color: '#d97706' },
+      { name: 'Kesejahteraan Sosial', points: civil + health, color: '#bef264' },
+      { name: 'Administrasi & Hukum', points: 70, color: '#1e3a8a' },
+    ];
+
+    const budgetPieData = rawBudgetData.map(item => ({
+      name: item.name,
+      value: parseFloat(((item.points / totalPoints) * 100).toFixed(1)),
+      color: item.color
+    }));
 
     return (
-      <div className="space-y-4 font-sans">
+      <div className="space-y-6 font-sans">
+        
+        {/* KARTU STUKTUR EKONOMI PERSIS NATIONSTATES */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-center">
-          <h3 className="text-base font-bold text-slate-100">Anggaran Pengeluaran Negara (APBN)</h3>
+          <h2 className="text-lg font-black text-slate-100">Perekonomian {stats.name || 'Negara'}</h2>
           <p className="text-xs text-slate-400 mt-1">
-            Total APBN: <strong className="text-amber-400">{totalExpenditure} Triliun {stats.currency || 'Rupiah'}</strong> ({expenditureRate}% dari PDB)
+            PDB (GDP): <strong className="text-amber-400">{totalGdpBillion.toLocaleString('id-ID')} Miliar {stats.currency || 'Rupiah'}</strong>
+          </p>
+          <p className="text-xs text-slate-300 font-medium">
+            {gdpPerCapita.toLocaleString('id-ID')} {stats.currency || 'Rupiah'} per jiwa
           </p>
 
-          <div className="h-64 w-full mt-4">
+          <div className="grid grid-cols-2 gap-2 mt-3 p-3 bg-slate-950 rounded-lg border border-slate-800 text-[11px]">
+            <div>
+              <span className="text-slate-400 block">10% Penduduk Termiskin:</span>
+              <span className="text-rose-400 font-bold">{poorestIncome.toLocaleString('id-ID')} {stats.currency}/jiwa</span>
+            </div>
+            <div>
+              <span className="text-slate-400 block">10% Penduduk Terkaya:</span>
+              <span className="text-emerald-400 font-bold">{richestIncome.toLocaleString('id-ID')} {stats.currency}/jiwa</span>
+            </div>
+          </div>
+
+          <div className="h-60 w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={budgetPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={85}>
-                  {budgetPieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                <Pie data={ecoSectorData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
+                  {ecoSectorData.map((entry, index) => (
+                    <Cell key={`eco-cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value) => `${value}%`} />
@@ -121,7 +152,35 @@ export default function Charts({ activeTab, stats }) {
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 mt-4 text-[11px] text-left border-t border-slate-800 pt-3">
+          <div className="grid grid-cols-2 gap-2 mt-3 text-[11px] text-left border-t border-slate-800 pt-3">
+            {ecoSectorData.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }}></span>
+                <span className="text-slate-300 truncate">{item.name}: <strong className="text-white">{item.value}%</strong></span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* KARTU PENGELUARAN APBN MULTI SEKTOR */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-center">
+          <h3 className="text-base font-bold text-slate-100">Alokasi APBN per Sektor</h3>
+          <p className="text-xs text-slate-400 mt-0.5">Persentase distribusi anggaran negara berdasarkan regulasi aktif</p>
+
+          <div className="h-56 w-full mt-3">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={budgetPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75}>
+                  {budgetPieData.map((entry, index) => (
+                    <Cell key={`budget-cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `${value}%`} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mt-3 text-[11px] text-left border-t border-slate-800 pt-3">
             {budgetPieData.map((item, idx) => (
               <div key={idx} className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }}></span>
@@ -130,6 +189,7 @@ export default function Charts({ activeTab, stats }) {
             ))}
           </div>
         </div>
+
       </div>
     );
   }
